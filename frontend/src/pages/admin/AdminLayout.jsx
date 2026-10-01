@@ -18,7 +18,7 @@ export default function AdminLayout({ children }) {
   }, [location.pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('authenticated');
     localStorage.removeItem('user');
     navigate('/login');
   };

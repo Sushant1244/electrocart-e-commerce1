@@ -16,8 +16,7 @@ export default function NotificationDropdown() {
   const load = async () => {
     if (stoppedRef.current || inFlight.current) return;
 
-    const token = localStorage.getItem('token');
-    if (!token) return;
+    if (localStorage.getItem('authenticated') !== 'true') return;
 
     inFlight.current = true;
     try {
@@ -41,8 +40,7 @@ export default function NotificationDropdown() {
   useEffect(() => {
     const startIfAuthed = () => {
       if (intervalRef.current) return;
-      const token = localStorage.getItem('token');
-      if (!token) return;
+      if (localStorage.getItem('authenticated') !== 'true') return;
       load();
       intervalRef.current = setInterval(load, POLL_INTERVAL);
     };
@@ -50,7 +48,7 @@ export default function NotificationDropdown() {
     startIfAuthed();
 
     const onStorage = (e) => {
-      if (e.key === 'token') {
+      if (e.key === 'authenticated') {
         if (e.newValue) {
           stoppedRef.current = false;
           startIfAuthed();

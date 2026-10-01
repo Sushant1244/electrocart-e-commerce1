@@ -8,6 +8,8 @@ export default function Login({ onLogin }){
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -18,6 +20,12 @@ export default function Login({ onLogin }){
     setLoading(true);
     try {
       const res = await API.post('/auth/login', { email, password });
+
+      if (res.data.requiresTwoFactor) {
+        setTwoFactorRequired(true);
+        setError('Enter the code from your authenticator app or use a backup code.');
+        return;
+      }
       
       // Check if email is verified (skip for admin users)
       const userData = res.data.user;
@@ -41,7 +49,7 @@ export default function Login({ onLogin }){
       }
       
       // onLogin now returns the normalized user object
-      const normalizedUser = onLogin(res.data.token, res.data.user);
+      const normalizedUser = onLogin(res.data.user);
       if (rememberMe) {
         localStorage.setItem('rememberMe', 'true');
       }
@@ -70,6 +78,21 @@ export default function Login({ onLogin }){
     }
   };
 
+  const verifyTwoFactor = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const res = await API.post('/auth/2fa/verify', { code: twoFactorCode.trim() });
+      const normalizedUser = onLogin(res.data.user);
+      navigate(normalizedUser?.isAdmin ? '/admin' : '/');
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Two-factor verification failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-card">
@@ -87,6 +110,25 @@ export default function Login({ onLogin }){
           </div>
         )}
 
+        {twoFactorRequired ? (
+          <form onSubmit={verifyTwoFactor} className="auth-form">
+            <div className="form-group">
+              <label>Authenticator or backup code</label>
+              <input
+                type="text"
+                value={twoFactorCode}
+                onChange={e => setTwoFactorCode(e.target.value)}
+                placeholder="Enter your code"
+                autoComplete="one-time-code"
+                required
+                disabled={loading}
+              />
+            </div>
+            <button type="submit" className="btn-auth-primary" disabled={loading}>
+              {loading ? 'Verifying...' : 'Verify and sign in'}
+            </button>
+          </form>
+        ) : (
         <form onSubmit={login} className="auth-form">
           <div className="form-group">
             <label>Email Address</label>
@@ -143,6 +185,7 @@ export default function Login({ onLogin }){
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+        )}
 
         
 

@@ -9,16 +9,25 @@
     "dev:nodemon": "nodemon server.js",
     "test": "jest --runInBand --forceExit",
     "seed:pg": "node seed_pg.js",
+    "seed": "node seed_mongo.js",
+    "seed:login-activity": "node seed_login_activity.js",
     "migrate:create-reviews": "node scripts/create_reviews_table.js",
     "migrate:cleanup-notifications": "node scripts/cleanup_old_notifications_migration.js",
+    "migrate:auth": "node scripts/migrate_auth.js",
     "build": "cd ../frontend && npm install && npm run build",
     "heroku-postbuild": "cd ../frontend && npm install && npm run build"
   },
   "jest": {
-    "setupFilesAfterEnv": ["./test/setup.js"],
-    "teardownFilesAfterEnv": ["./test/teardown.js"],
+    "setupFilesAfterEnv": [
+      "./test/setup.js"
+    ],
+    "teardownFilesAfterEnv": [
+      "./test/teardown.js"
+    ],
     "testEnvironment": "node",
-    "testMatch": ["**/test/**/*.test.js"],
+    "testMatch": [
+      "**/test/**/*.test.js"
+    ],
     "verbose": true,
     "testTimeout": 30000
   },
@@ -26,17 +35,22 @@
     "@aws-sdk/client-s3": "^3.400.0",
     "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.18.2",
+    "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.2.1",
+    "google-auth-library": "^11.1.0",
     "jsonwebtoken": "^9.0.0",
+    "mongoose": "^9.10.3",
     "multer": "^1.4.4",
     "nodemailer": "^7.0.11",
     "pg": "^8.16.3",
     "sequelize": "^6.37.5",
     "sequelize-cli": "^6.6.2",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "jest": "^29.7.0",

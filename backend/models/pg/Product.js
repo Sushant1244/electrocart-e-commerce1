@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     originalPrice: { type: DataTypes.FLOAT },
     countInStock: { type: DataTypes.INTEGER, defaultValue: 0 },
     images: { type: DataTypes.JSONB, defaultValue: [] },
+    videoUrl: { type: DataTypes.STRING },
     category: { type: DataTypes.STRING },
     brand: { type: DataTypes.STRING },
     rating: { type: DataTypes.FLOAT, defaultValue: 0 },

@@ -14,6 +14,8 @@ if (!POSTGRES_URL) {
   // load models
   const Product = require('../models/pg/Product')(sequelize, DataTypes);
   const User = require('../models/pg/User')(sequelize, DataTypes);
+  const AuthSession = require('../models/pg/AuthSession')(sequelize, DataTypes);
+  const AuthToken = require('../models/pg/AuthToken')(sequelize, DataTypes);
   const Order = require('../models/pg/Order')(sequelize, DataTypes);
   const Review = require('../models/pg/Review')(sequelize, DataTypes);
   const Notification = require('../models/pg/Notification')(sequelize, DataTypes);
@@ -24,6 +26,10 @@ if (!POSTGRES_URL) {
   // associations
   User.hasMany(Order, { foreignKey: 'userId' });
   Order.belongsTo(User, { foreignKey: 'userId' });
+  User.hasMany(AuthSession, { foreignKey: 'userId', onDelete: 'CASCADE' });
+  AuthSession.belongsTo(User, { foreignKey: 'userId' });
+  User.hasMany(AuthToken, { foreignKey: 'userId', onDelete: 'CASCADE' });
+  AuthToken.belongsTo(User, { foreignKey: 'userId' });
   // Wishlist/Cart associations
   User.hasMany(Wishlist, { foreignKey: 'userId' });
   Wishlist.belongsTo(User, { foreignKey: 'userId' });
@@ -44,6 +50,6 @@ if (!POSTGRES_URL) {
   User.hasMany(PaymentMethod, { foreignKey: 'userId' });
   PaymentMethod.belongsTo(User, { foreignKey: 'userId' });
 
-  module.exports = { sequelize, Product, User, Order, Review, Notification, Wishlist, CartItem, PaymentMethod };
+  module.exports = { sequelize, Product, User, AuthSession, AuthToken, Order, Review, Notification, Wishlist, CartItem, PaymentMethod };
 }
 

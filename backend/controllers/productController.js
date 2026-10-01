@@ -243,11 +243,13 @@ exports.checkInventory = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
+    const imageFiles = [...(req.files?.images || []), ...(req.files?.image || [])];
+    const videoFile = (req.files?.video || req.files?.productVideo || [])[0];
     // Debug: log incoming request metadata to help diagnose 500 errors
     try {
       console.debug('createProduct called', {
         bodyKeys: req.body ? Object.keys(req.body) : null,
-        hasFiles: Array.isArray(req.files) ? req.files.length : 0,
+        hasFiles: imageFiles.length + (videoFile ? 1 : 0),
         contentType: req.headers['content-type']
       });
     } catch (logErr) { console.debug('createProduct: failed to log request meta', logErr); }
@@ -256,8 +258,8 @@ exports.createProduct = async (req, res) => {
     // - uploading files (req.files) -> stored as /uploads/<filename>
     // - providing existing upload paths in JSON body as `images` (e.g. ['/uploads/Iphone.png'])
     let images = [];
-    if (req.files?.length) {
-      images = req.files.map(f => `/uploads/${f.filename}`);
+    if (imageFiles.length) {
+      images = imageFiles.map(f => `/uploads/${f.filename}`);
     } else if (req.body.images) {
       // images may be a JSON array or a single comma-separated string
       if (Array.isArray(req.body.images)) images = req.body.images;
@@ -285,6 +287,7 @@ exports.createProduct = async (req, res) => {
     // use countInStock for PG model while keeping 'stock' in response via adapter
     countInStock: Number(stock) || 0,
       images,
+      videoUrl: videoFile ? `/uploads/${videoFile.filename}` : (req.body.videoUrl || undefined),
       slug,
       featured: featured === 'true' || featured === true,
       rating: rating ? Number(rating) : 5
@@ -315,6 +318,8 @@ exports.updateProduct = async (req, res) => {
 
     const existingProduct = await adapter.Product.findById(id);
     const replaceFlag = req.body && (req.body.replaceImages === 'true' || req.body.replaceImages === true || req.body.replaceImages === '1');
+    const imageFiles = [...(req.files?.images || []), ...(req.files?.image || [])];
+    const videoFile = (req.files?.video || req.files?.productVideo || [])[0];
 
     // helper: parse incoming array/string -> array
     const parseArray = (val) => {
@@ -351,7 +356,7 @@ exports.updateProduct = async (req, res) => {
         }
       }
       // ensure DB is updated if deletions happened and no other image changes
-      if (!req.files?.length && !req.body.images) {
+      if (!imageFiles.length && !req.body.images && !videoFile) {
         update.images = baseImages;
         if (update.stock !== undefined && update.countInStock === undefined) {
           update.countInStock = Number(update.stock);
@@ -363,8 +368,9 @@ exports.updateProduct = async (req, res) => {
     }
 
     // handle new uploaded files
-    if (req.files?.length) {
-      const newImages = req.files.map(f => `/uploads/${f.filename}`);
+    if (videoFile) update.videoUrl = `/uploads/${videoFile.filename}`;
+    if (imageFiles.length) {
+      const newImages = imageFiles.map(f => `/uploads/${f.filename}`);
       if (replaceFlag) {
         // remove any remaining baseImages files
         for (const img of baseImages) {

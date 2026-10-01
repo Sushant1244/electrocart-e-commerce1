@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 
 // Pre-defined responses for common e-commerce questions
 const faqResponses = {
-  'hello': "Hello! 👋 Welcome to ElectroCart! I'm your AI shopping assistant. How can I help you today?",
+  'hello': "Hello! 👋 Welcome to SONU ENTERPRISES! I'm your AI shopping assistant. How can I help you today?",
   'hi': "Hi there! 😊 How can I assist you today?",
   'hey': "Hey! 🎉 What can I help you with?",
   'help': "I'd be happy to help! You can ask me about:\n• Products and categories\n• Orders and tracking\n• Shipping and delivery\n• Returns and refunds\n• Payment methods\n• Account issues\n• Discounts and promotions\n\nJust type your question!",
@@ -31,7 +31,7 @@ const faqResponses = {
   'thanks': "You're welcome! 😊 Happy to help! Is there anything else I can assist you with?",
   'thank': "You're welcome! 😊 Happy to help! Is there anything else I can assist you with?",
   'thank you': "You're welcome! 😊 Happy to help! Is there anything else I can assist you with?",
-  'bye': "Goodbye! 👋 Thank you for shopping with ElectroCart. Feel free to return anytime!",
+  'bye': "Goodbye! 👋 Thank you for shopping with SONU ENTERPRISES. Feel free to return anytime!",
 };
 
 // Find the best matching response
@@ -104,7 +104,7 @@ const Chatbot = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hello! 👋 Welcome to ElectroCart! I'm your AI shopping assistant. How can I help you today?",
+      text: "Hello! 👋 Welcome to SONU ENTERPRISES! I'm your AI shopping assistant. How can I help you today?",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -174,7 +174,7 @@ const Chatbot = () => {
           <div className="chatbot-header-info">
             <img src="/ai-logo-badge.svg" alt="AI" className="chatbot-avatar" />
             <div>
-              <h3>ElectroCart AI</h3>
+              <h3>SONU ENTERPRISES AI</h3>
               <span className="chatbot-status">
                 <span className="status-dot"></span>
                 Online

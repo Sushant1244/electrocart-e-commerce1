@@ -1,0 +1,10 @@
+const express = require('express');
+const controller = require('../controllers/mongoProductController');
+const { mongoAuth, mongoAdmin } = require('../middleware/mongoAuth');
+const router = express.Router();
+router.get('/', controller.list);
+router.get('/:id', controller.get);
+router.post('/', mongoAuth, mongoAdmin, controller.create);
+router.patch('/:id', mongoAuth, mongoAdmin, controller.update);
+router.delete('/:id', mongoAuth, mongoAdmin, controller.remove);
+module.exports = router;

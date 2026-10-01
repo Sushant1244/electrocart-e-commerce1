@@ -23,8 +23,8 @@ export default function Orders() {
         setError('Cannot reach backend server. Is the API running?');
       } else if (err.response.status === 401) {
         // token invalid or missing — force re-login
-        localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('authenticated');
         navigate('/login');
         return;
       } else {

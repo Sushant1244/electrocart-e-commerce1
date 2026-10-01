@@ -270,7 +270,7 @@ export default function Payment() {
           const config = {
             publicKey: publicKey,
             productIdentity: created._id,
-            productName: 'ElectroCart Order',
+            productName: 'SONU ENTERPRISES Order',
             productUrl: window.location.origin,
             eventHandler: {
               onSuccess: async (payload) => {

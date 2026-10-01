@@ -18,9 +18,8 @@ export default function Blog() {
 
   const fetchBlogsFromAPI = async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/blogs', {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        credentials: 'include'
       });
       if (response.ok) {
         const data = await response.json();
@@ -92,7 +91,7 @@ export default function Blog() {
   return (
     <div className="container" role="main">
       <div className="blog-header">
-        <h1>Elecrocart Blog</h1>
+        <h1>SONU ENTERPRISES Blog</h1>
         <p>Stay updated with the latest news, product reviews, and tech tips</p>
       </div>
       

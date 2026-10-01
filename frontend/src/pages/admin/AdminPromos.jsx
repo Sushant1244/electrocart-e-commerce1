@@ -29,9 +29,8 @@ export default function AdminPromos() {
 
   const fetchPromos = async () => {
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`${API_BASE}/promos`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await res.json();
       setPromos(data);
@@ -44,9 +43,8 @@ export default function AdminPromos() {
 
   const fetchTemplates = async () => {
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`${API_BASE}/promos/templates`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       const data = await res.json();
       setTemplates(data);
@@ -61,7 +59,6 @@ export default function AdminPromos() {
     setSuccess('');
     
     try {
-      const token = localStorage.getItem('token');
       const url = editingPromo 
         ? `${API_BASE}/promos/${editingPromo.code}`
         : `${API_BASE}/promos`;
@@ -70,9 +67,9 @@ export default function AdminPromos() {
       const res = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
       
@@ -113,10 +110,9 @@ export default function AdminPromos() {
     }
     
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`${API_BASE}/promos/${code}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        credentials: 'include'
       });
       
       if (!res.ok) {
@@ -132,13 +128,12 @@ export default function AdminPromos() {
 
   const handleToggleActive = async (promo) => {
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`${API_BASE}/promos/${promo.code}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({ active: !promo.active })
       });
       

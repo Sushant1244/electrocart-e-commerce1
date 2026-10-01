@@ -42,14 +42,11 @@ export default function AdminAddBlog(){
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
+      if (localStorage.getItem('authenticated') !== 'true') {
         alert('You must be logged in as admin to add blogs. Please login and try again.');
         setLoading(false);
         return;
       }
-      setAuthToken(token);
-
       const blogData = {
         title,
         slug: slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),

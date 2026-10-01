@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   const [userCount, setUserCount] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [fetchError, setFetchError] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
   const [exportMsg, setExportMsg] = useState('');
   const navigate = useNavigate();
   const [productSearch, setProductSearch] = useState('');
@@ -68,26 +68,39 @@ export default function AdminDashboard() {
     return currencyFormatter.format(num);
   };
 
+  const describeRequestError = (error) => {
+    const status = error?.response?.status;
+    if (!error?.response) return 'Network error: unable to reach the backend at http://127.0.0.1:5001. Start the backend and try again.';
+    if (status === 401) return 'Session expired: please sign in again.';
+    if (status === 403) return 'Permission denied: this account does not have admin access.';
+    if (status >= 500) return `Backend error (${status}): the server could not load admin data.`;
+    return `Admin data request failed (${status}): ${error.response.data?.message || 'Please try again.'}`;
+  };
+
+  const loadDashboard = async () => {
+    setLoading(true);
+    setFetchError(null);
+    const results = await Promise.allSettled([
+      API.get('/products'),
+      API.get('/analytics'),
+      API.get('/orders'),
+      API.get('/analytics/users')
+    ]);
+    const [productsResult, analyticsResult, ordersResult, usersResult] = results;
+    if (productsResult.status === 'fulfilled') setProducts(productsResult.value.data || []);
+    if (analyticsResult.status === 'fulfilled') setAnalytics(analyticsResult.value.data || null);
+    if (ordersResult.status === 'fulfilled') setOrders(ordersResult.value.data || []);
+    if (usersResult.status === 'fulfilled') {
+      const data = usersResult.value.data;
+      setUserCount(typeof data === 'object' && data.totalUsers != null ? Number(data.totalUsers) : null);
+    }
+    const rejected = results.find(result => result.status === 'rejected');
+    if (rejected) setFetchError(describeRequestError(rejected.reason));
+    setLoading(false);
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        const [pRes, aRes, oRes, uRes] = await Promise.all([
-          API.get('/products').catch(() => ({ data: [] })),
-          API.get('/analytics').catch(() => ({ data: null })),
-          API.get('/orders').catch(() => ({ data: null })),
-          API.get('/analytics/users').catch(() => ({ data: null }))
-        ]);
-        setProducts(pRes.data || []);
-        setAnalytics(aRes.data || null);
-        setOrders((oRes && oRes.data) || []);
-        setUserCount(uRes && typeof uRes.data === 'object' && uRes.data.totalUsers != null ? Number(uRes.data.totalUsers) : null);
-      } catch (err) {
-        console.debug('load error', err);
-        setFetchError(true);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    loadDashboard();
   }, []);
 
   // Export analytics to CSV
@@ -172,7 +185,8 @@ export default function AdminDashboard() {
       <div className="admin-v2">
         <div style={{ padding: 24 }} className="card">
           <h3>Unable to load admin data</h3>
-          <p>Make sure the backend server is running (default port 5001). Check your terminal for backend errors and reload the page.</p>
+          <p>{fetchError}</p>
+          <button type="button" className="btn-auth-primary" onClick={loadDashboard}>Retry</button>
         </div>
       </div>
     );

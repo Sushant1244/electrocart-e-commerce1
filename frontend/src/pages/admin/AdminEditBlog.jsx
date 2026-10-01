@@ -30,14 +30,11 @@ export default function AdminEditBlog(){
 
   const fetchBlog = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
+      if (localStorage.getItem('authenticated') !== 'true') {
         alert('Please login as admin');
         navigate('/login');
         return;
       }
-      setAuthToken(token);
-
       const res = await API.get(`/blogs/${id}`);
       const blog = res.data.blog;
       
@@ -68,14 +65,11 @@ export default function AdminEditBlog(){
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
+      if (localStorage.getItem('authenticated') !== 'true') {
         alert('You must be logged in as admin to edit blogs.');
         setLoading(false);
         return;
       }
-      setAuthToken(token);
-
       const blogData = {
         title,
         slug,

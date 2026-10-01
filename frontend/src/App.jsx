@@ -42,6 +42,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Chatbot from './components/Chatbot';
 import { setAuthToken } from './api/api';
+import API from './api/api';
 
 function App(){
   const parseIsAdmin = (v) => {
@@ -64,22 +65,31 @@ function App(){
     }
   })();
   const [user, setUser] = useState(storedUser || null);
+  const [authReady, setAuthReady] = useState(false);
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setAuthToken(token);
+    API.get('/auth/me')
+      .then((response) => {
+        const currentUser = response.data?.user || null;
+        setUser(currentUser);
+        if (currentUser) localStorage.setItem('user', JSON.stringify(currentUser));
+      })
+      .catch(() => setUser(null))
+      .finally(() => setAuthReady(true));
   }, []);
-  const onLogin = (token, user) => {
+  const onLogin = (tokenOrUser, nextUser) => {
+    const user = nextUser || tokenOrUser;
     // normalize isAdmin to boolean before storing
     const normalized = { ...user, isAdmin: parseIsAdmin(user?.isAdmin) };
-    localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(normalized));
-    setAuthToken(token);
+    localStorage.setItem('authenticated', 'true');
+    setAuthToken(null);
     setUser(normalized);
     return normalized;
   };
   const onLogout = () => {
-    localStorage.removeItem('token');
+    API.post('/auth/logout').catch(() => {});
     localStorage.removeItem('user');
+    localStorage.removeItem('authenticated');
     setAuthToken(null);
     setUser(null);
   };
@@ -93,6 +103,8 @@ function App(){
     if (user && user.emailVerified === false) return <Navigate to="/verify-email" />;
     return component;
   };
+
+  if (!authReady) return <div className="app" />;
 
   return (
     <div className="app">

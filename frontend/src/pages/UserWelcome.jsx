@@ -6,7 +6,7 @@ export default function UserWelcome(){
   return (
     <div className="container" style={{paddingTop:24}}>
       <div className="card" style={{padding:20}}>
-        <h1>Welcome to ElectroCart</h1>
+        <h1>Welcome to SONU ENTERPRISES</h1>
         <p className="muted">Find the best deals curated just for you. Use the navigation to browse categories or check your orders.</p>
         <div style={{marginTop:12, display:'flex', gap:8}}>
           <Link to="/products" className="btn-primary">Shop Products</Link>

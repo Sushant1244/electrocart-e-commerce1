@@ -51,6 +51,7 @@ export default function Contact() {
     email: 'support@elecrocart.com',
     phone: '+977-9701605257',
     address: 'Kathmandu, Nepal',
+    mapQuery: 'Kathmandu, Nepal',
     businessHours: 'Sun-Fri: 9 AM - 6 PM'
   };
 
@@ -267,7 +268,14 @@ export default function Contact() {
                 <span style={{ fontSize: '20px' }}>📍</span>
                 <div>
                   <strong style={{ display: 'block', color: '#333' }}>Address</strong>
-                  <span style={{ color: '#666' }}>{contactInfo.address}</span>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contactInfo.mapQuery)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: '#007bff', textDecoration: 'none' }}
+                  >
+                    {contactInfo.address}
+                  </a>
                 </div>
               </div>
             </div>
@@ -347,11 +355,26 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Map Placeholder */}
-          <div style={{ background: '#f8f9fa', padding: '25px', borderRadius: '8px', border: '1px solid #e0e0e0', textAlign: 'center' }}>
-            <div style={{ fontSize: '48px', marginBottom: '10px' }}>🗺️</div>
+          <div id="store-location" style={{ background: '#f8f9fa', padding: '25px', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
             <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>Visit Our Store</h3>
-            <p style={{ color: '#666', margin: 0 }}>Come visit us at our physical location for a hands-on experience with our products.</p>
+            <p style={{ color: '#666', margin: '0 0 15px' }}>Find us in Kathmandu, Nepal.</p>
+            <iframe
+              title="SONU ENTERPRISES store location"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(contactInfo.mapQuery)}&output=embed`}
+              width="100%"
+              height="220"
+              style={{ border: 0, borderRadius: '6px', display: 'block', marginBottom: '15px' }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(contactInfo.mapQuery)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: '#007bff', fontWeight: '600', textDecoration: 'none' }}
+            >
+              Get directions
+            </a>
           </div>
         </div>
       </div>

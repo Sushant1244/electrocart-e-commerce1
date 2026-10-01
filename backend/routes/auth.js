@@ -1,31 +1,37 @@
 const express = require('express');
-const router = express.Router();
-const { register, login, forgotPassword, resetPassword, verifyEmail, resendVerification } = require('../controllers/authController');
-let rateLimit;
-try {
-	rateLimit = require('express-rate-limit');
-} catch (e) {
-	// If the package isn't installed (e.g., temporary dev state), provide a no-op
-	// limiter so the server can start. This is a safe fallback for local dev only.
-	console.warn('[auth] express-rate-limit not installed; using no-op limiter');
-	rateLimit = (opts) => (req, res, next) => next();
-}
+const rateLimit = require('express-rate-limit');
+const auth = require('../controllers/secureAuthController');
 
-// Apply rate limiting to auth endpoints to mitigate brute-force and abuse.
+const router = express.Router();
 const authLimiter = rateLimit({
-	// allow 100 requests per 15 minutes per IP by default for auth endpoints
-	windowMs: 15 * 60 * 1000,
-	limit: 100,
-	standardHeaders: 'draft-8',
-	legacyHeaders: false,
-	message: { message: 'Too many requests from this IP, please try again later.' }
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'Too many authentication requests. Please try again later.' }
 });
 
-router.post('/register', authLimiter, register);
-router.post('/login', authLimiter, login);
-router.post('/forgot-password', authLimiter, forgotPassword);
-router.post('/reset-password', authLimiter, resetPassword);
-router.post('/verify-email', authLimiter, verifyEmail);
-router.post('/resend-verification', authLimiter, resendVerification);
+router.post('/register', authLimiter, auth.register);
+router.post('/verify-email', authLimiter, auth.verifyEmail);
+router.post('/resend-verification', authLimiter, auth.resendVerification);
+router.post('/login', authLimiter, auth.login);
+router.post('/otp/request', authLimiter, auth.requestOtp);
+router.post('/otp/verify', authLimiter, auth.verifyOtp);
+router.post('/google', authLimiter, auth.google);
+router.post('/refresh', authLimiter, auth.refresh);
+router.post('/logout', auth.logout);
+router.post('/logout-all', auth.authMiddleware, auth.logoutAll);
+router.post('/forgot-password', authLimiter, auth.forgotPassword);
+router.post('/reset-password', authLimiter, auth.resetPassword);
+router.post('/change-password', auth.authMiddleware, auth.changePassword);
+router.post('/change-email', auth.authMiddleware, auth.changeEmail);
+router.post('/2fa/setup', auth.authMiddleware, auth.setup2fa);
+router.post('/2fa/enable', auth.authMiddleware, auth.enable2fa);
+router.post('/2fa/verify', auth.twoFactorMiddleware, auth.verify2fa);
+router.post('/2fa/disable', auth.authMiddleware, auth.disable2fa);
+router.get('/me', auth.authMiddleware, auth.me);
+router.get('/sessions', auth.authMiddleware, auth.sessions);
+router.delete('/sessions/:id', auth.authMiddleware, auth.revokeSession);
+router.delete('/account', auth.authMiddleware, auth.deleteAccount);
 
 module.exports = router;

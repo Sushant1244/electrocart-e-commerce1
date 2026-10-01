@@ -8,9 +8,8 @@ export default function Footer() {
         <div className="footer-content">
           <div className="footer-column">
             <h4>Contacts Us</h4>
-            <p>ElectroCart Store</p>
-            <p>No,12345 Freedom, Nepal</p>
-            <p>Nepal</p>
+            <p>SONU ENTERPRISES Store</p>
+            <a href="/contact#store-location">📍 Kathmandu, Nepal</a>
             <p>📞 +9779766325733</p>
             <p>✉️ ElectroCart@gmail.com</p>
           </div>
@@ -34,7 +33,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>© 2024 Elecrocart. All Rights Reserved.</p>
+          <p>© 2024 SONU ENTERPRISES. All Rights Reserved.</p>
         </div>
       </div>
     </footer>

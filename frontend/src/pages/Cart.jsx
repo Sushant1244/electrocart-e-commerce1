@@ -172,8 +172,7 @@ export default function Cart() {
 
   // Redirect to checkout page where user can edit full address and then proceed to payment
   const checkout = () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (localStorage.getItem('authenticated') !== 'true') {
       alert('Please login to checkout');
       window.location.href = '/login';
       return;

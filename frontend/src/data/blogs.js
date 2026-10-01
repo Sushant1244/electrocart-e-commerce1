@@ -4,14 +4,14 @@
 export const blogs = [
   {
     id: 1,
-    title: "Welcome to Elecrocart - Your One-Stop Electronics Shop",
+    title: "Welcome to SONU ENTERPRISES - Your One-Stop Electronics Shop",
     slug: "welcome-to-elecrocart",
     excerpt: "Discover the best electronics at unbeatable prices. Shop the latest gadgets, smartphones, laptops, and more.",
-    content: `Welcome to Elecrocart - Your ultimate destination for all things electronics! We're excited to bring you the latest technology at competitive prices.
+    content: `Welcome to SONU ENTERPRISES - Your ultimate destination for all things electronics! We're excited to bring you the latest technology at competitive prices.
     
     Whether you're looking for the newest smartphone, a powerful laptop, or smart home devices, we've got you covered. Our carefully curated collection features top brands and quality products to meet your every need.
     
-    Why choose Elecrocart?
+    Why choose SONU ENTERPRISES?
     - Fast and reliable delivery
     - Secure payment options including eSewa
     - Excellent customer support
@@ -19,7 +19,7 @@ export const blogs = [
     
     Start exploring our store today and find the perfect tech for your lifestyle!`,
     image: "/uploads/Iphone banner.png",
-    author: "Elecrocart Team",
+    author: "SONU ENTERPRISES Team",
     date: "2026-01-15",
     category: "Announcements"
   },
@@ -69,7 +69,7 @@ export const blogs = [
 
     Visit our store to explore our wide selection of laptops!`,
     image: "/uploads/MacBook Air M4.png",
-    author: "Elecrocart Team",
+    author: "SONU ENTERPRISES Team",
     date: "2026-01-20",
     category: "Guides"
   },

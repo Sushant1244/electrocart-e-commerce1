@@ -20,6 +20,14 @@ export default function Register({ onLogin }){
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
+  const [developmentOtp, setDevelopmentOtp] = useState('');
+  const passwordStrength = [
+    password.length >= 8,
+    /[a-z]/.test(password),
+    /[A-Z]/.test(password),
+    /\d/.test(password),
+    /[^A-Za-z0-9]/.test(password)
+  ].filter(Boolean).length;
 
   // Countdown timer for resend button
   useEffect(() => {
@@ -46,8 +54,8 @@ export default function Register({ onLogin }){
       setError('Please agree to the Terms of Service');
       return;
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
       return;
     }
     try {
@@ -58,12 +66,13 @@ export default function Register({ onLogin }){
       });
       // If backend returned a token/user (legacy), use it
       if (res.data && res.data.token && res.data.user) {
-        const normalizedUser = onLogin(res.data.token, res.data.user);
+        const normalizedUser = onLogin(res.data.user);
         if (normalizedUser?.isAdmin) return navigate('/admin');
         return navigate('/');
       }
       // Otherwise expect a verification flow: backend sends { message, email }
       setRegisteredEmail(res.data.email || (email || '').trim());
+      setDevelopmentOtp(res.data.devOtp || '');
       setOtpPending(true);
       setCountdown(60); // Start countdown after first OTP is sent
       return;
@@ -103,8 +112,8 @@ export default function Register({ onLogin }){
       // Attempt to log the user in automatically after successful verification
       try {
         const loginResp = await API.post('/auth/login', { email: registeredEmail || email, password: (password || '').trim() });
-        if (loginResp.data && loginResp.data.token && loginResp.data.user) {
-          onLogin(loginResp.data.token, loginResp.data.user);
+        if (loginResp.data && loginResp.data.user) {
+          onLogin(loginResp.data.user);
         }
       } catch (loginErr) {
         // ignore login failure - user can manually login
@@ -133,9 +142,10 @@ export default function Register({ onLogin }){
       setResendLoading(true);
       setError('');
       
-      await API.post('/auth/resend-verification', { email: registeredEmail || email });
+      const response = await API.post('/auth/resend-verification', { email: registeredEmail || email });
       
       setSuccessMessage('A new verification code has been sent to your email.');
+      setDevelopmentOtp(response.data?.devOtp || '');
       setCountdown(60);
       
       // Clear message after 5 seconds
@@ -224,6 +234,9 @@ export default function Register({ onLogin }){
                 {showPassword ? '👁️' : '👁️‍🗨️'}
               </button>
             </div>
+            <div aria-live="polite" style={{ marginTop: '6px', fontSize: '12px', color: passwordStrength >= 4 ? '#16803c' : '#8a4b08' }}>
+              Password strength: {passwordStrength <= 1 ? 'weak' : passwordStrength <= 3 ? 'medium' : 'strong'}
+            </div>
           </div>
 
           <div className="form-group">
@@ -270,6 +283,7 @@ export default function Register({ onLogin }){
             )}
             
             <p className="otp-instructions">Please enter the 6-digit verification code sent to <strong>{registeredEmail || email}</strong></p>
+            {developmentOtp && <p className="success-message">Development OTP: <strong>{developmentOtp}</strong></p>}
             
             <div className="form-group">
               <label>Verification Code</label>

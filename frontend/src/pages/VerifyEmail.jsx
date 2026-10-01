@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API from '../api/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function VerifyEmail({ user, onVerified }) {
   const [code, setCode] = useState('');
@@ -11,6 +11,8 @@ export default function VerifyEmail({ user, onVerified }) {
   const [countdown, setCountdown] = useState(0);
   const [resendMessage, setResendMessage] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const verificationToken = searchParams.get('token');
 
   // Countdown timer for resend button
   useEffect(() => {
@@ -34,6 +36,29 @@ export default function VerifyEmail({ user, onVerified }) {
   }
 
   const email = user?.email || storedEmail || '';
+
+  useEffect(() => {
+    if (!verificationToken) return;
+    let active = true;
+    setLoading(true);
+    API.post('/auth/verify-email', { token: verificationToken })
+      .then(() => {
+        if (!active) return;
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        currentUser.emailVerified = true;
+        localStorage.setItem('user', JSON.stringify(currentUser));
+        setSuccess(true);
+        setTimeout(() => {
+          if (onVerified) onVerified(currentUser);
+          navigate('/');
+        }, 1500);
+      })
+      .catch(err => {
+        if (active) setError(err?.response?.data?.message || 'Verification link is invalid or expired.');
+      })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [verificationToken, onVerified, navigate]);
 
   const submit = async (e) => {
     e.preventDefault();

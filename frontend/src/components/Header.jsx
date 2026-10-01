@@ -122,10 +122,10 @@ export default function Header({ user, onLogout }) {
         <div className="container">
           <div className="top-bar-left">
             <span>📞 +9779701605257</span>
-            <span>📍 Store Location</span>
+            <a href="/contact#store-location" style={{ color: 'inherit', textDecoration: 'none' }}>📍 Store Location</a>
           </div>
           <div className="top-bar-center">
-            <span>Tell a friend about Elecrocart & get 20% off</span>
+            <span>Tell a friend about SONU ENTERPRISES & get 20% off</span>
           </div>
           <div className="top-bar-right">
             <select className="currency-select">
@@ -158,11 +158,11 @@ export default function Header({ user, onLogout }) {
             <Link to="/" className="brand-link">
               <img
                 src="/uploads/logo1.png"
-                alt="Elecrocart"
+                alt="SONU ENTERPRISES"
                 className="brand-logo"
                 onError={(e) => { try { e.currentTarget.onerror = null; e.currentTarget.src = '/uploads/logo.png'; } catch (err) {} }}
               />
-              <span className="brand-text">Elecrocart</span>
+              <span className="brand-text">SONU ENTERPRISES</span>
             </Link>
           </div>
             <nav className="main-nav" role="navigation" aria-label="Main navigation">

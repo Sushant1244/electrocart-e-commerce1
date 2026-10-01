@@ -20,6 +20,8 @@ export default function AdminEditProduct(){
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [replaceImages, setReplaceImages] = useState(false);
+  const [video, setVideo] = useState(null);
+  const [videoPreview, setVideoPreview] = useState('');
 
   useEffect(() => {
     loadProduct();
@@ -72,6 +74,7 @@ export default function AdminEditProduct(){
         form.append('images', images[i]);
       }
     }
+    if (video) form.append('video', video);
 
     try {
       // Do not set Content-Type manually; let the browser include multipart boundary
@@ -82,6 +85,12 @@ export default function AdminEditProduct(){
     } catch (err) {
       alert(err?.response?.data?.message || 'Failed to update product');
     }
+  };
+
+  const onVideoChange = (file) => {
+    setVideo(file || null);
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+    setVideoPreview(file ? URL.createObjectURL(file) : '');
   };
 
   if (!product) return <div className="loading">Loading...</div>;
@@ -217,6 +226,13 @@ export default function AdminEditProduct(){
             <strong>Or choose from existing uploads</strong>
             <UploadsPicker onSelect={(selected) => setImages(selected)} />
           </div>
+        </div>
+
+        <div className="form-group">
+          <label>Product Video (optional)</label>
+          <input type="file" accept="video/*" onChange={e=>onVideoChange(e.target.files?.[0])} />
+          <small>Upload one video, maximum 100 MB. Uploading replaces the current video.</small>
+          {(videoPreview || product.videoUrl) && <video controls src={videoPreview || product.videoUrl} style={{display:'block', width:320, maxWidth:'100%', marginTop:10, borderRadius:6}} />}
         </div>
         
         <div className="form-actions">

@@ -14,14 +14,11 @@ export default function AdminBlogs(){
 
   const fetchBlogs = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
+      if (localStorage.getItem('authenticated') !== 'true') {
         alert('Please login as admin');
         navigate('/login');
         return;
       }
-      setAuthToken(token);
-
       const res = await API.get('/blogs');
       setBlogs(res.data.blogs || []);
     } catch (err) {
@@ -38,9 +35,6 @@ export default function AdminBlogs(){
     }
 
     try {
-      const token = localStorage.getItem('token');
-      setAuthToken(token);
-
       await API.delete(`/blogs/${blogId}`);
       alert('Blog deleted successfully');
       fetchBlogs();

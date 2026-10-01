@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const mongoSanitize = require('express-mongo-sanitize');
 const path = require('node:path');
 const fs = require('fs');
 const { DataTypes } = require('sequelize');
@@ -34,6 +36,12 @@ const blogRoutes = require('./routes/blogs');
 const pgConfig = require('./config/sequelize');
 const promoRoutes = require('./routes/promo');
 const reportRoutes = require('./routes/reports');
+const mongoProductRoutes = require('./routes/mongoProducts');
+const mongoCategoryRoutes = require('./routes/mongoCategories');
+const mongoCartRoutes = require('./routes/mongoCart');
+const mongoOrderRoutes = require('./routes/mongoOrders');
+const { connectDB, getConnectionState } = require('./config/db');
+const { verifyEmailTransport } = require('./utils/sendEmail');
 let pgProductsRouter = null;
 // Only initialize Postgres when running the server directly or in Vercel.
 // This avoids starting background DB connections during tests which can leave open handles.
@@ -200,6 +208,8 @@ if (process.env.NODE_ENV === 'production') {
 
 // Parse JSON and URL-encoded payloads
 app.use(express.json());
+app.use(cookieParser());
+app.use(mongoSanitize());
 app.use(express.urlencoded({ extended: true }));
 
 // Lightweight request logger to help reproduce and capture incoming requests in dev
@@ -244,6 +254,15 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/promo', promoRoutes);
 app.use('/api/inventory', inventoryRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/mongo/products', mongoProductRoutes);
+app.use('/api/mongo/categories', mongoCategoryRoutes);
+app.use('/api/mongo/cart', mongoCartRoutes);
+app.use('/api/mongo/orders', mongoOrderRoutes);
+app.get('/api/health', async (req, res) => {
+  const state = getConnectionState();
+  const status = state === 1 ? 'connected' : process.env.MONGODB_URI ? 'disconnected' : 'not-configured';
+  return res.status(status === 'disconnected' ? 503 : 200).json({ server: 'ok', status: status === 'connected' ? 'ok' : status, database: 'mongodb', readyState: state });
+});
 
 // If PG is enabled, mount PG product routes under /api/pg/products
 if (pgProductsRouter) {
@@ -327,7 +346,9 @@ if (isProduction) {
 // Start server with an error handler to gracefully report listen errors
 const LISTEN_HOST = process.env.LISTEN_HOST || '0.0.0.0';
 
-function startServer() {
+async function startServer() {
+  await verifyEmailTransport();
+  if (process.env.MONGODB_URI) await connectDB();
   const server = app.listen(PORT, LISTEN_HOST, () => console.log(`Server running on ${LISTEN_HOST}:${PORT}`));
 
   server.on('error', (err) => {
@@ -358,7 +379,11 @@ app.use((err, req, res, next) => {
   } catch (e) {
     console.error('Failed to log unhandled error', e);
   }
-  res.status(500).json({ message: err && err.message ? err.message : '' });
+  if (err?.code === 'LIMIT_UNEXPECTED_FILE' || /^Unexpected upload field:/.test(err?.message || '')) {
+    return res.status(400).json({ message: err.message || 'Unsupported upload field' });
+  }
+  if (err?.code === 'LIMIT_FILE_SIZE') return res.status(413).json({ message: 'Uploaded file is too large. Maximum size is 100 MB.' });
+  return res.status(500).json({ message: err && err.message ? err.message : '' });
 });
 
 // Export for Vercel serverless OR local development/testing
@@ -370,7 +395,10 @@ if (isVercel) {
   module.exports = app;
 } else if (require.main === module) {
   // Running directly (local development): start the server
-  startServer();
+  startServer().catch((error) => {
+    console.error('[mongo] unable to start server:', error.message);
+    process.exit(1);
+  });
   module.exports = { app, startServer };
 } else {
   // For testing: create a server instance that supertest can use

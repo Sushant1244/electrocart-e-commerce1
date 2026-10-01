@@ -138,8 +138,7 @@ export default function ProductCard({ p }) {
   try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (err) { /* fallback */ }
       // send a notification to backend for this user (non-blocking)
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
+        if (localStorage.getItem('authenticated') === 'true') {
           // Get user ID for personalized notification
           const user = JSON.parse(localStorage.getItem('user') || 'null');
           const userId = user && (user._id || user.id);
@@ -210,8 +209,7 @@ export default function ProductCard({ p }) {
 
                 // create a backend notification for logged-in users (non-blocking)
                 try {
-                  const token = localStorage.getItem('token');
-                  if (token) {
+                  if (localStorage.getItem('authenticated') === 'true') {
                     // include product metadata so the notification can render richer content
                     const productIdMeta = productId;
                     let imageToStore = null;

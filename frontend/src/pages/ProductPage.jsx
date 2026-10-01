@@ -289,8 +289,7 @@ export default function ProductPage() {
       try { window.dispatchEvent(new CustomEvent('cartUpdated')); } catch (e) {}
       // send notification about purchase initiation (non-blocking)
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
+        if (localStorage.getItem('authenticated') === 'true') {
           // Get user ID for personalized notification
           const user = JSON.parse(localStorage.getItem('user') || 'null');
           const userId = user && (user._id || user.id);
@@ -363,6 +362,14 @@ export default function ProductPage() {
             ))}
           </div>
         )}
+        {product.videoUrl && (
+          <video
+            controls
+            preload="metadata"
+            src={product.videoUrl}
+            style={{ width: '100%', maxWidth: 520, marginTop: 16, borderRadius: 8, background: '#111' }}
+          />
+        )}
       </div>
 
   <div className="info">
@@ -408,8 +415,7 @@ export default function ProductPage() {
                   title={`Give ${i+1} star${i+1>1?'s':''}`}
                   onClick={async () => {
                     // require auth locally before attempting to post
-                    const token = localStorage.getItem('token');
-                    if (!token) { navigate('/login'); return; }
+                    if (localStorage.getItem('authenticated') !== 'true') { navigate('/login'); return; }
                     try {
                       const payload = { rating: i+1 };
                       const res = await API.post(`/products/${product._id || product.id}/reviews`, payload);
@@ -449,8 +455,7 @@ export default function ProductPage() {
           e.preventDefault();
           if (!formRating) { alert('Please select a rating'); return; }
           // ensure user is logged-in before posting
-          const token = localStorage.getItem('token');
-          if (!token) { navigate('/login'); return; }
+          if (localStorage.getItem('authenticated') !== 'true') { navigate('/login'); return; }
           setSubmittingReview(true);
           try {
             // Use FormData to support file uploads

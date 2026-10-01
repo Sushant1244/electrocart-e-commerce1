@@ -12,6 +12,16 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) { cb(null, Date.now() + '-' + file.originalname.replace(/\s+/g,'_')); }
 });
 const upload = multer({ storage });
+const productUpload = multer({
+  storage,
+  limits: { fileSize: 100 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (['video', 'productVideo'].includes(file.fieldname) && !file.mimetype.startsWith('video/')) return cb(new Error('Video upload must be a valid video file'));
+    if (['images', 'image'].includes(file.fieldname) && !file.mimetype.startsWith('image/')) return cb(new Error('Image upload must be a valid image file'));
+    if (!['images', 'image', 'video', 'productVideo'].includes(file.fieldname)) return cb(new Error(`Unexpected upload field: ${file.fieldname}`));
+    return cb(null, true);
+  }
+});
 
 // Advanced search with filters, sorting, pagination, and auto-suggestions
 router.get('/search', advancedSearch);
@@ -47,8 +57,8 @@ router.post('/:id/reviews', authMiddleware, upload.array('photos', 5), async (re
 });
 
 // admin protected
-router.post('/', authMiddleware, adminMiddleware, upload.array('images', 6), createProduct);
-router.put('/:id', authMiddleware, adminMiddleware, upload.array('images', 6), updateProduct);
+router.post('/', authMiddleware, adminMiddleware, productUpload.fields([{ name: 'images', maxCount: 10 }, { name: 'image', maxCount: 10 }, { name: 'video', maxCount: 1 }, { name: 'productVideo', maxCount: 1 }]), createProduct);
+router.put('/:id', authMiddleware, adminMiddleware, productUpload.fields([{ name: 'images', maxCount: 10 }, { name: 'image', maxCount: 10 }, { name: 'video', maxCount: 1 }, { name: 'productVideo', maxCount: 1 }]), updateProduct);
 router.delete('/:id', authMiddleware, adminMiddleware, deleteProduct);
 
 module.exports = router;

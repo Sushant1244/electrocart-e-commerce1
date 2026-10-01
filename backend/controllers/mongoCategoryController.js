@@ -1,0 +1,7 @@
+const { z } = require('zod');
+const Category = require('../models/mongo/Category');
+const input = z.object({ name: z.string().trim().min(1).max(120), slug: z.string().trim().regex(/^[a-z0-9-]+$/), image: z.string().url().optional() });
+exports.list = async (req, res, next) => { try { return res.json(await Category.find().sort({ name: 1 }).lean()); } catch (error) { return next(error); } };
+exports.create = async (req, res, next) => { try { const parsed = input.safeParse(req.body); if (!parsed.success) return res.status(400).json({ message: 'Invalid category data', errors: parsed.error.issues }); return res.status(201).json((await Category.create(parsed.data)).toObject()); } catch (error) { return next(error); } };
+exports.update = async (req, res, next) => { try { const parsed = input.partial().safeParse(req.body); if (!parsed.success) return res.status(400).json({ message: 'Invalid category data', errors: parsed.error.issues }); const category = await Category.findByIdAndUpdate(req.params.id, parsed.data, { new: true, runValidators: true }).lean(); if (!category) return res.status(404).json({ message: 'Category not found' }); return res.json(category); } catch (error) { return next(error); } };
+exports.remove = async (req, res, next) => { try { const category = await Category.findByIdAndDelete(req.params.id).lean(); if (!category) return res.status(404).json({ message: 'Category not found' }); return res.json({ message: 'Category deleted' }); } catch (error) { return next(error); } };

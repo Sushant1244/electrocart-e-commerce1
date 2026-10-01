@@ -14,6 +14,8 @@ export default function AdminAddProduct(){
   const [rating, setRating] = useState(5);
   const [images, setImages] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
+  const [video, setVideo] = useState(null);
+  const [videoPreview, setVideoPreview] = useState('');
   const navigate = useNavigate();
 
   const submit = async (e) => {
@@ -59,12 +61,11 @@ export default function AdminAddProduct(){
     } else if (imgs && imgs.length) {
       for (let i = 0; i < imgs.length; i++) form.append('images', imgs[i]);
     }
+    if (video) form.append('video', video);
 
     try {
   // Ensure auth header exists
-  const token = localStorage.getItem('token');
-  if (!token) return alert('You must be logged in as admin to add products. Please login and try again.');
-  setAuthToken(token);
+  if (localStorage.getItem('authenticated') !== 'true') return alert('You must be logged in as admin to add products. Please login and try again.');
 
   // Do not set Content-Type manually; let the browser include the correct multipart boundary
       // Debug: log form keys for easier diagnosis
@@ -111,8 +112,8 @@ export default function AdminAddProduct(){
             } else if (imgs && imgs.length) {
               for (let i = 0; i < imgs.length; i++) retryForm.append('images', imgs[i]);
             }
+            if (video) retryForm.append('video', video);
             try {
-              setAuthToken(localStorage.getItem('token'));
               await API.post('/products', retryForm);
               alert('Product added (with auto-suffix)');
               try { window.dispatchEvent(new CustomEvent('productsChanged')); localStorage.setItem('productsChanged', String(Date.now())); } catch (err) { /* ignore */ }
@@ -151,6 +152,12 @@ export default function AdminAddProduct(){
       for (const s of arr) urls.push(s.startsWith('/uploads/') ? s : `/uploads/${s}`);
     }
     setPreviewUrls(urls);
+  };
+
+  const onVideoChange = (file) => {
+    setVideo(file || null);
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+    setVideoPreview(file ? URL.createObjectURL(file) : '');
   };
 
   return (
@@ -198,6 +205,10 @@ export default function AdminAddProduct(){
               {previewUrls.map((u, i) => (<img key={i} src={u} alt={`preview-${i}`} style={{width:72,height:72,objectFit:'cover',borderRadius:6,border:'1px solid #ddd'}} />))}
             </div>
           )}
+          <label style={{display:'block', marginTop:16}}>Product Video (optional)</label>
+          <input type="file" accept="video/*" onChange={e=>onVideoChange(e.target.files?.[0])} />
+          <small>Upload one video, maximum 100 MB.</small>
+          {videoPreview && <video controls src={videoPreview} style={{display:'block', width:260, maxWidth:'100%', marginTop:10, borderRadius:6}} />}
           <div style={{marginTop: 10}}>
             <strong>Or choose from existing uploads</strong>
             <UploadsPicker onSelect={(selected) => onImagesChange(selected)} />
