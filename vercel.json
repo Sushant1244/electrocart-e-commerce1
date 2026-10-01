@@ -5,17 +5,8 @@
   "outputDirectory": "frontend/dist",
   "functions": {
     "api/index.js": {
-      "includeFiles": [
-        "backend/**",
-        "frontend/dist/**",
-        "frontend/public/uploads/**"
-      ],
-      "excludeFiles": [
-        "backend/test/**",
-        "backend/scripts/**",
-        "backend/logs/**",
-        "**/*.test.js"
-      ]
+      "includeFiles": "{backend/**,frontend/dist/**,frontend/public/uploads/**}",
+      "excludeFiles": "{backend/test/**,backend/scripts/**,backend/logs/**,**/*.test.js}"
     }
   },
   "rewrites": [
