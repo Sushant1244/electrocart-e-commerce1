@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Compact AI badge suitable for favicon or small UI elements -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="t d">
+  <title id="t">ElectroCart AI Badge</title>
+  <desc id="d">Square badge with rounded corners, gradient and white AI letters.</desc>
+  <defs>
+    <linearGradient id="g2" x1="0" x2="1">
+      <stop offset="0" stop-color="#00c6ff"/>
+      <stop offset="1" stop-color="#0072ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="20" fill="url(#g2)"/>
+  <g transform="translate(0, -6)">
+    <path d="M28 92 L44 44 L60 92 Z" fill="#fff"/>
+    <rect x="72" y="44" width="8" height="48" rx="2" fill="#fff"/>
+  </g>
+</svg>

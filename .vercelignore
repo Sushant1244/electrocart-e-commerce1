@@ -1,0 +1,33 @@
+# Ignore upload directories - these should be served from cloud storage (S3, Cloudinary, etc.)
+backend/uploads/**
+frontend/public/uploads/**
+
+# Ignore test files
+backend/test/**
+frontend/src/components/__tests__/**
+*.test.js
+*.spec.js
+__tests__/**
+*.test.jsx
+*.spec.jsx
+
+# Ignore scripts (not needed in production)
+backend/scripts/**
+
+# Ignore logs
+*.log
+backend/logs/**
+backend/server.log
+
+# Ignore development files
+.env.example
+.env.production.example
+*.md
+LICENSE
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore Vercel config output
+.vercel

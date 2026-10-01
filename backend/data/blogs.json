@@ -1,0 +1,48 @@
+{
+  "blogs": [
+    {
+      "id": 1,
+      "title": "Welcome to ElectroCart",
+      "slug": "welcome-to-electrocart",
+      "excerpt": "Discover the latest in electronics and gadgets at unbeatable prices.",
+      "content": "Welcome to ElectroCart, your one-stop shop for all electronics needs. We offer a wide range of products including smartphones, laptops, headphones, smartwatches, and accessories. Our commitment is to provide quality products at competitive prices with excellent customer service. Browse our collection and find the perfect tech for your lifestyle.",
+      "image": "/uploads/Iphone banner.png",
+      "author": "Admin",
+      "date": "2025-01-15",
+      "category": "News"
+    },
+    {
+      "id": 2,
+      "title": "Top 10 Tech Gadgets of 2025",
+      "slug": "top-10-tech-gadgets-2025",
+      "excerpt": "Check out the most popular tech gadgets that are trending this year.",
+      "content": "The tech world is evolving rapidly, and we've compiled a list of the top 10 must-have gadgets for 2025. From the latest smartphones with advanced AI features to smart home devices that make life easier, these products represent the best in innovation and value. Whether you're a tech enthusiast or just looking for practical devices, our curated list has something for everyone.",
+      "image": "/uploads/MacBook Air M4.png",
+      "author": "Admin",
+      "date": "2025-01-20",
+      "category": "Reviews"
+    },
+    {
+      "id": 3,
+      "title": "How to Choose the Right Headphones",
+      "slug": "how-to-choose-right-headphones",
+      "excerpt": "A comprehensive guide to finding the perfect headphones for your needs.",
+      "content": "Choosing the right headphones can be overwhelming with so many options available. In this guide, we break down the key factors to consider: sound quality, comfort, battery life, and connectivity. Whether you prefer over-ear, on-ear, or in-ear headphones, we help you make an informed decision based on your listening habits and budget.",
+      "image": "/uploads/Headphone.png",
+      "author": "Admin",
+      "date": "2025-02-01",
+      "category": "Guide"
+    },
+    {
+      "id": 4,
+      "title": "Smart Home Essentials",
+      "slug": "smart-home-essentials",
+      "excerpt": "Transform your living space with these must-have smart home devices.",
+      "content": "Smart home technology is no longer a luxury – it's a lifestyle upgrade. From smart speakers and displays to security cameras and lighting systems, these devices work together to create a seamless, connected living experience. Learn which products are essential for building your smart home and how they can improve your daily life.",
+      "image": "/uploads/Homepad mini.png",
+      "author": "Admin",
+      "date": "2025-02-10",
+      "category": "Guide"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "electrocart-e-commerce1",
+  "version": "1.0.0",
+  "main": "server.js",
+  "license": "MIT",
+  "scripts": {
+    "vercel-build": "cd frontend && npm install && npm run build"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.12"
+  }
+}

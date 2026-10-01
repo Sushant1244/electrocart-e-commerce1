@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="64" viewBox="0 0 240 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <style>
+      .brand { font: 600 20px/1.2 'Arial', sans-serif; fill: url(#g); }
+      .tag { font: 400 12px/1.2 'Arial', sans-serif; fill: #334155; }
+    </style>
+  </defs>
+  <rect rx="10" width="64" height="64" fill="#0ea5e9" />
+  <g transform="translate(8,8)">
+    <circle cx="24" cy="24" r="18" fill="white" opacity="0.06" />
+    <g transform="translate(8,6)">
+      <path d="M6 2 L10 2 L10 14 L6 14 Z" fill="white" opacity="0.95" />
+      <path d="M14 2 L18 2 L18 6 L14 6 Z" fill="#fff" opacity="0.95" />
+      <path d="M14 8 L18 8 L18 14 L14 14 Z" fill="#fff" opacity="0.95" />
+    </g>
+  </g>
+  <text x="80" y="36" class="brand">Electrocart</text>
+  <text x="80" y="52" class="tag">AI-powered store assistant</text>
+</svg>

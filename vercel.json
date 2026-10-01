@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "outputDirectory": "frontend/dist",
+        "buildCommand": "npm run vercel-build"
+      }
+    },
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["frontend/dist/**", "frontend/dist/uploads/**", "frontend/public/uploads/**", "backend/**", "node_modules/**"],
+        "excludeFiles": ["backend/test/**", "backend/scripts/**", "backend/logs/**", "**/*.test.js"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/uploads/(.*)",
+      "dest": "frontend/dist/uploads/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/dist/$1"
+    },
+    {
+      "handle": "/"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
