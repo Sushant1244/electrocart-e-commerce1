@@ -10,7 +10,7 @@
       }
     },
     {
-      "src": "backend/server.js",
+      "src": "api/index.js",
       "use": "@vercel/node",
       "config": {
         "includeFiles": ["frontend/dist/**", "frontend/dist/uploads/**", "frontend/public/uploads/**", "backend/**", "node_modules/**"],
@@ -18,25 +18,14 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "backend/server.js"
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
     },
     {
-      "src": "/uploads/(.*)",
-      "dest": "frontend/dist/uploads/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/dist/$1"
-    },
-    {
-      "handle": "/"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

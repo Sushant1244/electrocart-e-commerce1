@@ -212,6 +212,18 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(express.urlencoded({ extended: true }));
 
+// Connect lazily so warm serverless invocations reuse the cached Mongoose connection.
+if (process.env.MONGODB_URI) {
+  app.use(async (req, res, next) => {
+    try {
+      await connectDB();
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
+}
+
 // Lightweight request logger to help reproduce and capture incoming requests in dev
 app.use((req, res, next) => {
   try {

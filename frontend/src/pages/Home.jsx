@@ -52,8 +52,6 @@ export default function Home(){
   // render loading state inside JSX rather than returning early so hooks run consistently
 
   // Diagnostic: show debug hint when no products are available
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-
   const categories = [
     { name: 'iPhone', imageFile: 'Iphone.png' },
     { name: 'Mini Speaker', imageFile: 'Mini Speaker.png' },

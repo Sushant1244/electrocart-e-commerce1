@@ -5,8 +5,6 @@ import { resolveImageSrc } from '../utils/resolveImage';
 export default function UploadsPicker({ onSelect }) {
   const [uploads, setUploads] = useState([]);
   const [selected, setSelected] = useState([]);
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-
   useEffect(() => {
     let mounted = true;
     API.get('/uploads/list').then(res => {
