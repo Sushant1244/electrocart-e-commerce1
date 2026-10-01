@@ -1,23 +1,23 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "outputDirectory": "frontend/dist",
-        "buildCommand": "npm run vercel-build"
-      }
-    },
-    {
-      "src": "api/index.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["frontend/dist/**", "frontend/dist/uploads/**", "frontend/public/uploads/**", "backend/**", "node_modules/**"],
-        "excludeFiles": ["backend/test/**", "backend/scripts/**", "backend/logs/**", "**/*.test.js"]
-      }
+  "installCommand": "npm install && npm install --prefix backend && npm install --prefix frontend",
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": [
+        "backend/**",
+        "frontend/dist/**",
+        "frontend/public/uploads/**"
+      ],
+      "excludeFiles": [
+        "backend/test/**",
+        "backend/scripts/**",
+        "backend/logs/**",
+        "**/*.test.js"
+      ]
     }
-  ],
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

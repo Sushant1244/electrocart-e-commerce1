@@ -8,7 +8,7 @@
     "dev:server": "npm run dev --prefix backend",
     "dev:client": "npm run dev --prefix frontend",
     "build": "npm run build --prefix frontend",
-    "vercel-build": "cd frontend && npm install && npm run build"
+    "vercel-build": "npm run build --prefix frontend"
   },
   "dependencies": {
     "nodemailer": "^7.0.12"
