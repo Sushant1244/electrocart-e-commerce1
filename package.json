@@ -11,6 +11,7 @@
     "vercel-build": "npm install --prefix frontend --include=dev && npm run build --prefix frontend"
   },
   "dependencies": {
+    "multer": "^2.4.0",
     "nodemailer": "^7.0.12"
   },
   "devDependencies": {
