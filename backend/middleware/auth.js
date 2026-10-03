@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const adapter = require('../models/adapter');
-const MongoUser = process.env.MONGODB_URI ? require('../models/mongo/User') : null;
+const MongoUser = process.env.MONGO_URI ? require('../models/mongo/User') : null;
 
 // Use same fallback secret as authController to avoid verify mismatches in dev
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_jwt_secret_change_me';

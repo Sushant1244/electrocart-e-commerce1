@@ -29,7 +29,7 @@ const testOrder = {
 };
 
 const RECIPIENT_EMAIL = 'rrag7927@gmail.com';
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const CLIENT_URL = process.env.CLIENT_URL || 'https://rameshprasadsah.com.np';
 
 async function sendOrderConfirmation() {
   console.log('========================================');

@@ -18,7 +18,7 @@ function registerConnectionEvents() {
 }
 
 async function connectDB() {
-  const uri = process.env.MONGODB_URI;
+  const uri = process.env.MONGO_URI;
   if (!uri) return null;
   if (mongoose.connection.readyState === 1) return mongoose.connection;
   if (connectionPromise) return connectionPromise;

@@ -28,7 +28,7 @@ const verificationResendTracker = new Map();
 const COMMON_PASSWORDS = new Set(['password', 'password123', '12345678', 'qwerty123', 'letmein123', 'admin123', 'welcome123']);
 
 function db() {
-  if (process.env.MONGODB_URI) return require('../models/mongo/authStore');
+  if (process.env.MONGO_URI) return require('../models/mongo/authStore');
   if (!pgConfig?.User || !pgConfig?.AuthSession || !pgConfig?.AuthToken) throw Object.assign(new Error('Authentication database is not configured'), { status: 503 });
   return pgConfig;
 }
@@ -83,7 +83,7 @@ function parseUserAgent(userAgent = '') {
   return { type, browser, os };
 }
 async function recordLoginActivity(req, { user, email, status }) {
-  if (!process.env.MONGODB_URI) return;
+  if (!process.env.MONGO_URI) return;
   try {
     await LoginActivity.create({ userId: user?._id || user?.id || undefined, email: normalizedEmail(email) || 'unknown', ipAddress: req.ip || req.socket?.remoteAddress || 'unknown', userAgent: req.get('user-agent') || '', device: parseUserAgent(req.get('user-agent')), status });
   } catch (error) {
@@ -91,7 +91,7 @@ async function recordLoginActivity(req, { user, email, status }) {
   }
 }
 function sendTokenEmail(to, subject, token, kind) {
-  const frontend = process.env.CLIENT_URL || 'http://localhost:5173';
+  const frontend = process.env.CLIENT_URL || 'https://rameshprasadsah.com.np';
   const link = `${frontend}/${kind}?token=${encodeURIComponent(token)}`;
   return Promise.resolve(sendMail(to, subject, `Use this link within the allowed time: ${link}`, `<p>Use this link within the allowed time:</p><p><a href="${link}">${link}</a></p><p>If you did not request this, you can ignore this email.</p>`));
 }

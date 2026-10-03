@@ -104,7 +104,7 @@ function App(){
     return component;
   };
 
-  if (!authReady) return <div className="app" />;
+  if (!authReady) return <div className="app"><main className="main-content"><div className="container">Loading store...</div></main></div>;
 
   return (
     <div className="app">

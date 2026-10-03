@@ -1,23 +1,13 @@
 import axios from 'axios';
 
-// In production, use /api prefix. In development, use localhost:5001
-const getBaseURL = () => {
-  // If explicitly set, use that value (for custom API URLs)
-  if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== '') {
-    const url = import.meta.env.VITE_API_URL;
-    // Ensure /api prefix is included
-    return url.endsWith('/api') ? url : `${url}/api`;
-  }
-  // Use /api prefix in production (served from same origin)
-  if (import.meta.env.MODE === 'production') {
-    return '/api';
-  }
-  // Development: add /api prefix to match backend routes
-  return 'http://127.0.0.1:5001/api';
-};
+const configuredApiUrl = import.meta.env.VITE_API_URL || '/api';
+export const API_BASE_URL = configuredApiUrl.endsWith('/api')
+  ? configuredApiUrl
+  : `${configuredApiUrl}/api`;
 
 const api = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: API_BASE_URL,
+  timeout: 10000,
   // Do not force Content-Type globally so multipart/form-data (FormData) requests
   // from admin forms work correctly and let the browser set the boundary.
   withCredentials: true,

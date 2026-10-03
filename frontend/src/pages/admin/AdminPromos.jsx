@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../api/api';
 
-const API_BASE = (import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '/api' : 'http://localhost:5001/api')).replace(/\/$/, '');
+const API_BASE = API_BASE_URL.replace(/\/$/, '');
 
 export default function AdminPromos() {
   const [promos, setPromos] = useState([]);

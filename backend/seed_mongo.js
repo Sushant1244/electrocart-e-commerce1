@@ -24,7 +24,7 @@ const products = [
 ].map(([name, slug, description, price, category, brand]) => ({ name, slug, description, price, category, brand, stock: 25, images: [], specs: { warranty: '1 year' }, isActive: true }));
 
 async function seed() {
-  if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is required');
+  if (!process.env.MONGO_URI) throw new Error('MONGO_URI is required');
   if (!process.env.ADMIN_PASSWORD) throw new Error('ADMIN_PASSWORD is required for seeding');
   await connectDB();
   await Category.bulkWrite(categories.map(category => ({ updateOne: { filter: { slug: category.slug }, update: { $set: category }, upsert: true } })));

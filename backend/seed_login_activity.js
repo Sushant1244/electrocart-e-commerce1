@@ -4,7 +4,7 @@ const User = require('./models/mongo/User');
 const LoginActivity = require('./models/mongo/LoginActivity');
 
 async function seedLoginActivity() {
-  if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is required');
+  if (!process.env.MONGO_URI) throw new Error('MONGO_URI is required');
   await connectDB();
   const users = await User.find().select('email').limit(10).lean();
   if (!users.length) throw new Error('Create at least one user before seeding login activity');

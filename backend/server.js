@@ -127,50 +127,36 @@ try {
 }
 
 const PORT = process.env.PORT || 5001;
-// MongoDB support has been removed; use POSTGRES_URL to enable Postgres.
+const MONGO_URI = process.env.MONGO_URI;
 
-// Enable CORS: in production use CLIENT_URL, in development allow localhost on common dev ports
+// Enable CORS from an explicit production allowlist; development keeps local origins available.
 // For local debugging you can set DEV_ALLOW_ALL_ORIGINS=true in backend/.env to allow any origin
 if (process.env.NODE_ENV === 'production') {
-  // In Vercel monorepo, frontend and backend are on same domain, so we need flexible CORS
-  // to support preview deployments and different branches
+  const normalizeOrigin = (value) => {
+    try {
+      const url = new URL(value);
+      return `${url.protocol}//${url.host}`.toLowerCase();
+    } catch (error) {
+      return String(value || '').trim().replace(/\/$/, '').toLowerCase();
+    }
+  };
+  const allowedOrigins = [
+    'https://rameshprasadsah.com.np',
+    'https://www.rameshprasadsah.com.np',
+    ...(process.env.ALLOWED_ORIGINS || '').split(','),
+    process.env.CLIENT_URL
+  ]
+    .map(normalizeOrigin)
+    .filter(Boolean);
+  const allowedOriginSet = new Set(allowedOrigins);
+
   app.use(cors({
     origin: (origin, cb) => {
       // Allow requests with no origin (server-to-server, same-origin requests)
       if (!origin) return cb(null, true);
-      
-      // Build list of allowed origins
-      const allowedOrigins = [];
-      
-      // Add explicit CLIENT_URL if set
-      if (process.env.CLIENT_URL) {
-        allowedOrigins.push(process.env.CLIENT_URL);
-        // Also allow without https prefix for flexibility
-        allowedOrigins.push(process.env.CLIENT_URL.replace('https://', 'http://'));
-      }
-      
-      // Always allow Vercel domains (production and preview deployments)
-      const vercelPattern = /https?:\/\/[^/]*vercel\.app$/i;
-      const isVercelDomain = vercelPattern.test(origin) || 
-                            origin.includes('.vercel.app') ||
-                            origin.includes('vercel.app');
-      
-      // Allow Vercel storage
-      const isVercelStorage = origin.includes('vercel-storage.com');
-      
-      // Check if origin matches any allowed pattern
-      const isAllowed = allowedOrigins.some(allowed => 
-        origin === allowed || 
-        origin.endsWith('.' + allowed.replace('https://', '')) ||
-        origin.endsWith('-' + allowed.replace('https://', ''))
-      );
-      
-      if (isAllowed || isVercelDomain || isVercelStorage) {
-        return cb(null, true);
-      }
-      
-      // Block other origins in production for security
-      return cb(new Error('Not allowed by CORS policy'), false);
+      return allowedOriginSet.has(normalizeOrigin(origin))
+        ? cb(null, true)
+        : cb(null, false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -213,7 +199,7 @@ app.use(mongoSanitize());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect lazily so warm serverless invocations reuse the cached Mongoose connection.
-if (process.env.MONGODB_URI) {
+if (MONGO_URI) {
   app.use(async (req, res, next) => {
     try {
       await connectDB();
@@ -272,9 +258,12 @@ app.use('/api/mongo/cart', mongoCartRoutes);
 app.use('/api/mongo/orders', mongoOrderRoutes);
 app.get('/api/health', async (req, res) => {
   const state = getConnectionState();
-  const status = state === 1 ? 'connected' : process.env.MONGODB_URI ? 'disconnected' : 'not-configured';
+  const status = state === 1 ? 'connected' : MONGO_URI ? 'disconnected' : 'not-configured';
   return res.status(status === 'disconnected' ? 503 : 200).json({ server: 'ok', status: status === 'connected' ? 'ok' : status, database: 'mongodb', readyState: state });
 });
+
+// Never let an unmatched API request fall through to the React SPA shell.
+app.use('/api', (req, res) => res.status(404).json({ message: 'API route not found' }));
 
 // If PG is enabled, mount PG product routes under /api/pg/products
 if (pgProductsRouter) {
@@ -360,7 +349,7 @@ const LISTEN_HOST = process.env.LISTEN_HOST || '0.0.0.0';
 
 async function startServer() {
   await verifyEmailTransport();
-  if (process.env.MONGODB_URI) await connectDB();
+  if (MONGO_URI) await connectDB();
   const server = app.listen(PORT, LISTEN_HOST, () => console.log(`Server running on ${LISTEN_HOST}:${PORT}`));
 
   server.on('error', (err) => {

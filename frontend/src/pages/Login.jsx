@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import API from '../api/api';
+import API, { API_BASE_URL } from '../api/api';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login({ onLogin }){
-  const API_BASE = (import.meta.env.VITE_API_URL || (import.meta.env.MODE === 'production' ? '/api' : 'http://localhost:5001/api')).replace(/\/$/, '');
+  const API_BASE = API_BASE_URL.replace(/\/$/, '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

@@ -70,7 +70,7 @@ export default function AdminDashboard() {
 
   const describeRequestError = (error) => {
     const status = error?.response?.status;
-    if (!error?.response) return 'Network error: unable to reach the backend at http://127.0.0.1:5001. Start the backend and try again.';
+    if (!error?.response) return 'Network error: unable to reach the backend. Check the API deployment and try again.';
     if (status === 401) return 'Session expired: please sign in again.';
     if (status === 403) return 'Permission denied: this account does not have admin access.';
     if (status >= 500) return `Backend error (${status}): the server could not load admin data.`;

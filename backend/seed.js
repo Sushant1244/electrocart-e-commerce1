@@ -5,7 +5,8 @@ const Product = require('./models/Product');
 const bcrypt = require('bcryptjs');
 
 const seed = async () => {
-  await connectDB(process.env.MONGO_URI || 'mongodb://localhost:27017/ecommerce');
+  if (!process.env.MONGO_URI) throw new Error('MONGO_URI is required');
+  await connectDB();
   await User.deleteMany({});
   await Product.deleteMany({});
 

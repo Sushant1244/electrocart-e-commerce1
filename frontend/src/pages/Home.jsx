@@ -40,8 +40,13 @@ export default function Home(){
         API.get('/products'),
         API.get('/products?featured=true').catch(() => ({ data: [] }))
       ]);
-      setProducts(allRes.data);
-      setFeaturedProducts(featuredRes.data);
+      const toProductArray = (data) => {
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data?.products)) return data.products;
+        return [];
+      };
+      setProducts(toProductArray(allRes.data));
+      setFeaturedProducts(toProductArray(featuredRes.data));
     } catch (err) {
       console.error(err);
     } finally {
