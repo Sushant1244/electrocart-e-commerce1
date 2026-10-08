@@ -349,64 +349,182 @@ if (pgConfig && pgConfig.Product) {
   };
 
 } else {
-  // Minimal stubs when PG models are not present. Controllers should handle nulls and fall back
-  // to in-memory stores where appropriate.
+  // Postgres is not configured — fall back to MongoDB (Mongoose) models so that the
+  // main /api/* routes work against the Mongo database seamlessly.
+  const MongoProduct = require('./mongo/Product');
+  const MongoUser    = require('./mongo/User');
+  const MongoOrder   = require('./mongo/Order');
+  const MongoReview  = require('./mongo/Review');
+
+  // Helper: convert a Mongoose doc to a plain object with `_id` as string
+  const toObj = (doc) => {
+    if (!doc) return null;
+    const o = typeof doc.toObject === 'function' ? doc.toObject() : { ...doc };
+    o._id = String(o._id);
+    // normalize stock for frontend compatibility
+    o.stock = o.stock ?? o.countInStock ?? 0;
+    return o;
+  };
+
   adapter.Product = {
-    create: async () => null,
-    findOne: async () => null,
-    findById: async () => null,
-    findByIdAndUpdate: async () => null,
-    findByIdAndDelete: async () => null,
-    find: async () => [],
-    findBySlug: async () => null,
+    create: async (data) => {
+      const doc = await MongoProduct.create(data);
+      return toObj(doc);
+    },
+    findOne: async (query) => {
+      const doc = await MongoProduct.findOne(query).lean();
+      return doc ? toObj(doc) : null;
+    },
+    findById: async (id) => {
+      const doc = await MongoProduct.findById(id).lean();
+      return doc ? toObj(doc) : null;
+    },
+    findByIdAndUpdate: async (id, update) => {
+      const doc = await MongoProduct.findByIdAndUpdate(id, update, { new: true }).lean();
+      return doc ? toObj(doc) : null;
+    },
+    findByIdAndDelete: async (id) => {
+      const doc = await MongoProduct.findByIdAndDelete(id).lean();
+      return doc ? toObj(doc) : null;
+    },
+    find: async (query = {}, opts = {}) => {
+      let q = MongoProduct.find(query);
+      if (opts.sort) {
+        const dir = (opts.sort.dir || 'DESC').toUpperCase() === 'ASC' ? 1 : -1;
+        q = q.sort({ [opts.sort.field]: dir });
+      } else {
+        q = q.sort({ createdAt: -1 });
+      }
+      const docs = await q.lean();
+      return docs.map(toObj);
+    },
+    findBySlug: async (slug) => {
+      const doc = await MongoProduct.findOne({ slug }).lean();
+      return doc ? toObj(doc) : null;
+    },
   };
 
   adapter.User = {
-    findOne: async () => null,
-    create: async () => null,
-    findById: async () => null,
-    findByIdSelect: async () => null,
+    findOne: async (query) => {
+      // Always select passwordHash so auth can compare
+      const doc = await MongoUser.findOne(query).select('+passwordHash +googleId +twoFactorSecret +backupCodes').lean();
+      if (!doc) return null;
+      const o = toObj(doc);
+      o.password = o.passwordHash;
+      return o;
+    },
+    create: async (data) => {
+      const createData = { ...data };
+      if (createData.password) { createData.passwordHash = createData.password; delete createData.password; }
+      const doc = await MongoUser.create(createData);
+      const o = toObj(doc);
+      o.password = o.passwordHash;
+      return o;
+    },
+    findById: async (id) => {
+      const doc = await MongoUser.findById(id).select('+passwordHash').lean();
+      if (!doc) return null;
+      const o = toObj(doc);
+      o.password = o.passwordHash;
+      return o;
+    },
+    findByIdSelect: async (id) => {
+      const doc = await MongoUser.findById(id).lean();
+      if (!doc) return null;
+      const o = toObj(doc);
+      delete o.passwordHash;
+      return o;
+    },
+    find: async (query = {}) => {
+      const docs = await MongoUser.find(query).lean();
+      return docs.map(d => { const o = toObj(d); o.password = o.passwordHash; return o; });
+    },
+    findByIdAndUpdate: async (id, update) => {
+      const data = { ...update };
+      if (data.password) { data.passwordHash = data.password; delete data.password; }
+      const doc = await MongoUser.findByIdAndUpdate(id, data, { new: true }).lean();
+      if (!doc) return null;
+      const o = toObj(doc);
+      o.password = o.passwordHash;
+      return o;
+    },
+    count: async () => {
+      return await MongoUser.countDocuments();
+    }
   };
 
   adapter.Order = {
-    create: async () => null,
-    find: async () => [],
-    findById: async () => null,
-    findAll: async () => [],
-    findByIdAndUpdate: async () => null,
-  };
-
-  // Review adapter stub - only available if pgConfig.Review exists
-  const PgReview = pgConfig && pgConfig.Review;
-  adapter.Review = {
-    findAll: async (query = {}) => {
-      if (!PgReview) return [];
-      const rows = await PgReview.findAll({ where: query, order: [['createdAt', 'DESC']] });
-      return rows.map(r => { const o = r.toJSON(); o._id = o.id; return o; });
+    create: async (data) => {
+      const doc = await MongoOrder.create(data);
+      return toObj(doc);
+    },
+    find: async (query = {}) => {
+      const docs = await MongoOrder.find(query).sort({ createdAt: -1 }).populate('user', '-passwordHash').lean();
+      return docs.map(toObj);
     },
     findById: async (id) => {
-      if (!PgReview) return null;
-      const inst = await PgReview.findByPk(id);
-      if (!inst) return null;
-      const obj = inst.toJSON(); obj._id = obj.id; return obj;
+      const doc = await MongoOrder.findById(id).populate('user', '-passwordHash').lean();
+      return doc ? toObj(doc) : null;
+    },
+    findAll: async () => {
+      const docs = await MongoOrder.find().sort({ createdAt: -1 }).populate('user', '-passwordHash').lean();
+      return docs.map(toObj);
     },
     findByIdAndUpdate: async (id, update) => {
-      if (!PgReview) return null;
-      const inst = await PgReview.findByPk(id);
-      if (!inst) return null;
-      await inst.update(update);
-      await inst.reload(); const obj = inst.toJSON(); obj._id = obj.id; return obj;
+      const doc = await MongoOrder.findByIdAndUpdate(id, update, { new: true }).populate('user', '-passwordHash').lean();
+      return doc ? toObj(doc) : null;
+    }
+  };
+
+  adapter.Notification = {
+    create: async () => null,
+    find: async () => [],
+    findByIdAndUpdate: async () => null,
+    deleteOlderThan: async () => 0
+  };
+
+  adapter.Wishlist = {
+    create: async () => null,
+    find: async () => [],
+    findOne: async () => null,
+    remove: async () => 0
+  };
+
+  adapter.CartItem = {
+    create: async () => null,
+    find: async () => [],
+    updateById: async () => null,
+    deleteById: async () => 0
+  };
+
+  adapter.PaymentMethod = {
+    create: async () => null,
+    find: async () => [],
+    findOne: async () => null,
+    findById: async () => null,
+    findByIdAndUpdate: async () => null,
+    deleteById: async () => 0
+  };
+
+  adapter.Review = {
+    findAll: async (query = {}) => {
+      const docs = await MongoReview.find(query).sort({ createdAt: -1 }).lean();
+      return docs.map(toObj);
+    },
+    findById: async (id) => {
+      const doc = await MongoReview.findById(id).lean();
+      return doc ? toObj(doc) : null;
+    },
+    findByIdAndUpdate: async (id, update) => {
+      const doc = await MongoReview.findByIdAndUpdate(id, update, { new: true }).lean();
+      return doc ? toObj(doc) : null;
     },
     findByIdAndDelete: async (id) => {
-      if (!PgReview) return { success: true };
-      const inst = await PgReview.findByPk(id);
-      if (!inst) return null;
-      await inst.destroy();
-      return { success: true };
+      const doc = await MongoReview.findByIdAndDelete(id);
+      return doc ? { success: true } : null;
     },
     count: async (query = {}) => {
-      if (!PgReview) return 0;
-      return await PgReview.count({ where: query });
+      return await MongoReview.countDocuments(query);
     }
   };
 }

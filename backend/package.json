@@ -15,7 +15,9 @@
     "migrate:cleanup-notifications": "node scripts/cleanup_old_notifications_migration.js",
     "migrate:auth": "node scripts/migrate_auth.js",
     "build": "cd ../frontend && npm install && npm run build",
-    "heroku-postbuild": "cd ../frontend && npm install && npm run build"
+    "heroku-postbuild": "cd ../frontend && npm install && npm run build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
   },
   "jest": {
     "setupFilesAfterEnv": [
