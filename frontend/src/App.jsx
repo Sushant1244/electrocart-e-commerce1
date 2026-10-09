@@ -38,6 +38,8 @@ import AdminLayout from './pages/admin/AdminLayout';
 import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
 import New from './pages/New';
+import CodeOfConduct from './pages/CodeOfConduct';
+import LicensePolicy from './pages/LicensePolicy';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Chatbot from './components/Chatbot';
@@ -146,6 +148,8 @@ function App(){
           <Route path="/verify-email" element={<VerifyEmail user={user} onVerified={(u) => { setUser(u); localStorage.setItem('user', JSON.stringify(u)); }} />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/code-of-conduct" element={<CodeOfConduct />} />
+          <Route path="/license-policy" element={<LicensePolicy />} />
           <Route path="/new" element={<New />} />
         </Routes>
       </main>

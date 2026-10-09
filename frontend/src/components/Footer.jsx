@@ -17,15 +17,15 @@ export default function Footer() {
             <h4>Information</h4>
             <Link to="/support">Product Support</Link>
             <Link to="/checkout">Checkout</Link>
-            <Link to="/license">License Policy</Link>
+            <Link to="/license-policy">License Policy</Link>
             <Link to="/affiliate">Affiliate</Link>
           </div>
           <div className="footer-column">
             <h4>Customer Service</h4>
             <Link to="/help">Help Center</Link>
-            <Link to="/voucher">Radeern Voucher</Link>
+            <Link to="/voucher">Redeem Voucher</Link>
             <Link to="/contact">Contact Us</Link>
-            <Link to="/policies">Policies & Rules</Link>
+            <Link to="/code-of-conduct">Policies & Rules</Link>
           </div>
           <div className="footer-column">
             <h4>Download Our App</h4>

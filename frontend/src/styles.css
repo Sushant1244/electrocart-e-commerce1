@@ -3347,3 +3347,21 @@ textarea {
     inset-inline-end: 16px;
   }
 }
+
+/* ===== checkout agreements row ===== */
+.checkout-agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.checkout-agree input {
+  margin-block-start: 0.25rem;
+  inline-size: 18px;
+  block-size: 18px;
+  accent-color: #1d4ed8;
+  flex: 0 0 auto;
+}
+.checkout-agree a { color: #1d4ed8; text-decoration: underline; }

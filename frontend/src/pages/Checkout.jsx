@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { resolveImageSrc } from '../utils/resolveImage';
 
 export default function Checkout() {
@@ -11,6 +11,7 @@ export default function Checkout() {
 		try { return JSON.parse(localStorage.getItem('cart') || '[]'); } catch (e) { return []; }
 	});
 	const [editing, setEditing] = React.useState(!address);
+	const [agreed, setAgreed] = React.useState(false);
 	const [form, setForm] = React.useState(() => ({
 		fullName: address?.fullName || '',
 		line1: address?.line1 || '',
@@ -43,6 +44,8 @@ export default function Checkout() {
 	};
 
 	const proceed = () => {
+		if (!address) return alert('Please save a shipping address first');
+		if (!agreed) return alert('Please read and accept the License Policy and Code of Conduct first');
 		navigate('/payment');
 	};
 
@@ -127,12 +130,30 @@ export default function Checkout() {
 						<div className="order-total"><strong>Total: Rs {cart.reduce((s,c) => s + (c.price || 0) * (c.quantity || 1), 0).toFixed(2)}</strong></div>
 					</div>
 				)}
-				<div style={{marginTop:12}}>
-					<button className="btn btn-primary" onClick={() => {
-						if (!address) return alert('Please save a shipping address first');
-						navigate('/payment');
-					}}>Buy Now</button>
+			</div>
+			<div className="checkout-section" aria-label="Agreements">
+				<h2>Agreements</h2>
+				<label className="checkout-agree">
+					<input
+						type="checkbox"
+						checked={agreed}
+						onChange={(e) => setAgreed(e.target.checked)}
+					/>
+					<span>
+						I have read and agree to the{' '}
+						<Link to="/license-policy" target="_blank" rel="noopener">License Policy</Link>
+						{' '}and the{' '}
+						<Link to="/code-of-conduct" target="_blank" rel="noopener">Code of Conduct</Link>.
+					</span>
+				</label>
+				<div style={{ marginTop: 12 }}>
+					<button className="btn" onClick={() => setAgreed(true)} disabled={agreed}>
+						{agreed ? 'Accepted' : 'Accept'}
+					</button>
 				</div>
+			</div>
+			<div style={{marginTop:12}}>
+				<button className="btn btn-primary" onClick={proceed}>Buy Now</button>
 			</div>
 		</div>
 	);
