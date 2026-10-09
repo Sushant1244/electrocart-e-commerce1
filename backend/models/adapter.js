@@ -366,6 +366,73 @@ if (pgConfig && pgConfig.Product) {
     return o;
   };
 
+  // The legacy controllers speak the Postgres order shape (userId/orderItems/totalPrice/status);
+  // the Mongo schema speaks (user/items/totalAmount/orderStatus). Translate both directions.
+  const ORDER_STATUSES = MongoOrder.STATUSES;
+
+  const toId = (value) => {
+    if (!value) return null;
+    if (typeof value === 'object') return String(value._id || value.id || value);
+    return String(value);
+  };
+
+  const mapOrderIn = (data = {}) => {
+    const out = {};
+    const user = data.user ?? data.userId;
+    if (user) out.user = toId(user);
+
+    const items = data.items ?? data.orderItems;
+    if (Array.isArray(items)) {
+      out.items = items.map((item) => ({
+        product: toId(item.product ?? item.productId),
+        name: item.name,
+        quantity: Number(item.quantity) || 1,
+        price: Number(item.price) || 0
+      }));
+    }
+
+    if (data.shippingAddress !== undefined) out.shippingAddress = data.shippingAddress;
+    if (data.paymentMethod) out.paymentMethod = String(data.paymentMethod);
+
+    const total = data.totalAmount ?? data.totalPrice ?? data.total;
+    if (total !== undefined) out.totalAmount = Number(total) || 0;
+
+    if (data.paymentStatus) out.paymentStatus = String(data.paymentStatus);
+    else if (data.isPaid !== undefined) out.paymentStatus = data.isPaid ? 'paid' : 'pending';
+
+    const requestedStatus = data.orderStatus ?? data.deliveryStatus ?? data.status;
+    if (requestedStatus) {
+      const normalized = String(requestedStatus).toLowerCase();
+      out.orderStatus = ORDER_STATUSES.includes(normalized) ? normalized : 'processing';
+    }
+    if (data.deliveryStatus) out.deliveryStatus = String(data.deliveryStatus);
+    if (data.trackingNumber) out.trackingNumber = String(data.trackingNumber);
+    if (data.deliveryUpdates !== undefined) out.deliveryUpdates = data.deliveryUpdates;
+    if (data.paymentResult !== undefined) out.paymentResult = data.paymentResult;
+    return out;
+  };
+
+  const mapOrderOut = (doc) => {
+    const o = toObj(doc);
+    if (!o) return null;
+    delete o.stock;
+    o.userId = toId(o.user);
+    o.status = o.orderStatus;
+    o.totalPrice = o.totalAmount;
+    o.total = o.totalAmount;
+    o.orderItems = o.items;
+    o.isPaid = o.paymentStatus === 'paid';
+    return o;
+  };
+
+  const mapOrderQuery = (query = {}) => {
+    const out = { ...query };
+    if (out.userId !== undefined) { out.user = toId(out.userId); delete out.userId; }
+    if (out.status !== undefined) { out.orderStatus = out.status; delete out.status; }
+    if (out.totalPrice !== undefined) { out.totalAmount = out.totalPrice; delete out.totalPrice; }
+    return out;
+  };
+
   adapter.Product = {
     create: async (data) => {
       const doc = await MongoProduct.create(data);
@@ -455,24 +522,24 @@ if (pgConfig && pgConfig.Product) {
 
   adapter.Order = {
     create: async (data) => {
-      const doc = await MongoOrder.create(data);
-      return toObj(doc);
+      const doc = await MongoOrder.create(mapOrderIn(data));
+      return mapOrderOut(doc);
     },
     find: async (query = {}) => {
-      const docs = await MongoOrder.find(query).sort({ createdAt: -1 }).populate('user', '-passwordHash').lean();
-      return docs.map(toObj);
+      const docs = await MongoOrder.find(mapOrderQuery(query)).sort({ createdAt: -1 }).populate('user', '-passwordHash').lean();
+      return docs.map(mapOrderOut);
     },
     findById: async (id) => {
       const doc = await MongoOrder.findById(id).populate('user', '-passwordHash').lean();
-      return doc ? toObj(doc) : null;
+      return doc ? mapOrderOut(doc) : null;
     },
     findAll: async () => {
       const docs = await MongoOrder.find().sort({ createdAt: -1 }).populate('user', '-passwordHash').lean();
-      return docs.map(toObj);
+      return docs.map(mapOrderOut);
     },
     findByIdAndUpdate: async (id, update) => {
-      const doc = await MongoOrder.findByIdAndUpdate(id, update, { new: true }).populate('user', '-passwordHash').lean();
-      return doc ? toObj(doc) : null;
+      const doc = await MongoOrder.findByIdAndUpdate(id, mapOrderIn(update), { new: true }).populate('user', '-passwordHash').lean();
+      return doc ? mapOrderOut(doc) : null;
     }
   };
 

@@ -69,15 +69,17 @@ exports.createOrder = async (req, res) => {
     }
     if (typeof userId === 'string' && /^\d+$/.test(userId)) userId = Number(userId);
 
-    // Determine paid status. For COD allow creation immediately. For online methods we prefer
-    // that the payment was verified, but allow creating a pending Khalti order (so client can
-    // initiate/verify payment after order creation) when no token/result is provided.
+    // Determine paid status. COD creates an unpaid order that is settled on delivery.
+    // Gateway methods (Khalti, eSewa, bank transfer, saved card) are verified *after* the order
+    // exists — /api/payments/{khalti,esewa,bank} flip it to paid — so they also create unpaid
+    // orders here. Any other method must arrive with an already-verified paymentResult.
     const isCod = paymentMethod && String(paymentMethod).toLowerCase() === 'cod';
   const method = paymentMethod ? String(paymentMethod).toLowerCase() : '';
   const isKhalti = method === 'khalti';
+    const isDeferredGateway = ['khalti', 'esewa', 'bank', 'card'].includes(method);
     const paymentResult = req.body.paymentResult || null;
 
-    if (!isCod && !isKhalti) {
+    if (!isCod && !isDeferredGateway) {
       // For non-COD, non-Khalti methods require an explicit successful paymentResult
       // Dev convenience: allow creating unverified orders when `ALLOW_UNVERIFIED_ORDERS=true` is set
       const allowUnverified = (process.env.ALLOW_UNVERIFIED_ORDERS || 'false') === 'true';
@@ -158,8 +160,8 @@ exports.createOrder = async (req, res) => {
       isPaid: isCod ? false : !!verified,
       status: 'processing',
       deliveryStatus: 'pending',
-      // don't store a synthetic paymentResult for Khalti when not verified
-      paymentResult: isCod ? null : (verified ? paymentResult : (isKhalti ? null : (paymentResult || { provider: paymentMethod, paidAt: nowIso }))),
+      // don't store a synthetic paymentResult for gateway methods that are still unverified
+      paymentResult: isCod ? null : (verified ? paymentResult : (isDeferredGateway ? null : (paymentResult || { provider: paymentMethod, paidAt: nowIso }))),
       // use a consistent `timestamp` (ISO string) so frontend can render updates reliably
       deliveryUpdates: [{ status: 'pending', location: 'Order Received', note: 'Order has been received and is being processed', timestamp: nowIso }]
     };
@@ -191,8 +193,9 @@ exports.createOrder = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
   try {
     const userId = req.user && (req.user._id || req.user.id);
-    // coerce numeric ids to number when possible to match PG schema
-    const qUserId = typeof userId === 'string' && /\d+/.test(userId) ? Number(userId) : userId;
+    // coerce purely numeric ids to number when possible to match the PG schema;
+    // Mongo ObjectIds contain digits but must stay strings
+    const qUserId = typeof userId === 'string' && /^\d+$/.test(userId) ? Number(userId) : userId;
     const orders = await adapter.Order.find({ userId: qUserId });
     res.json(orders);
   } catch (e) {
