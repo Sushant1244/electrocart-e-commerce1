@@ -1,25 +1,9 @@
 {
   "version": 2,
-  "installCommand": "npm install --include=dev && npm install --prefix backend --include=dev && npm install --prefix frontend --include=dev",
+  "installCommand": "npm install --include=dev && npm install --prefix frontend --include=dev",
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "frontend/dist",
-  "functions": {
-    "api/index.js": {
-      "includeFiles": "{backend/**,frontend/dist/**,frontend/public/uploads/**}",
-      "excludeFiles": "{backend/test/**,backend/scripts/**,backend/logs/**,**/*.test.js}"
-    }
-  },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

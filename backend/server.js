@@ -127,7 +127,7 @@ try {
 }
 
 const PORT = process.env.PORT || 5001;
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
 // Enable CORS from an explicit production allowlist; development keeps local origins available.
 // For local debugging you can set DEV_ALLOW_ALL_ORIGINS=true in backend/.env to allow any origin
