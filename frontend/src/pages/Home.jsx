@@ -4,6 +4,7 @@ import { resolveImageSrc } from '../utils/resolveImage';
 import ProductCard from '../components/ProductCard';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { SelfUpdatingBanner } from '../components/SelfUpdatingBanner';
+import HeroShowcase, { HERO_PRODUCTS } from '../components/HeroShowcase';
 import '../styles/SelfUpdatingComponents.css';
 
 export default function Home(){
@@ -17,6 +18,8 @@ export default function Home(){
   const buttonRefs = useRef([]);
   const filterOptions = ['All', 'Accessories', 'iPhone', 'Laptop', 'iPad'];
   const [activeFilter, setActiveFilter] = useState('All');
+  // active hero product drives the banner headline text
+  const [heroProduct, setHeroProduct] = useState(HERO_PRODUCTS[0]);
 
   // show loading while products are being fetched (moved below so hooks run first)
 
@@ -407,7 +410,7 @@ export default function Home(){
           <div className="discount-content">
             <div className="discount-text">
               <span className="hurry-btn" aria-hidden="true">Hurry Up!</span>
-              <h2>Up To 20% Discount Check it Out</h2>
+              <h2 key={heroProduct.id} className="hero-headline-swap">{heroProduct.headline}</h2>
               <div className="countdown">
                 <div className="countdown-item"><span className="countdown-value">{countdown.days}</span><span className="countdown-label">DAYS</span></div>
                 <div className="countdown-item"><span className="countdown-value">{countdown.hours}</span><span className="countdown-label">HRS</span></div>
@@ -417,9 +420,7 @@ export default function Home(){
               <button type="button" className="btn-shop-now" aria-label="Shop discounted products">SHOP NOW</button>
             </div>
             <div className="discount-images">
-              <div className="phone-image">
-                {(() => { const { local, remote } = resolveImageSrc('/uploads/Iphone banner.png'); return (<img src={local || remote} alt="Iphone banner" loading="lazy" onError={(e)=>{ if (remote && e.currentTarget.src !== remote) e.currentTarget.src = remote; else e.currentTarget.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII='; }} />); })()}
-              </div>
+              <HeroShowcase onActiveChange={setHeroProduct} />
             </div>
           </div>
         </div>

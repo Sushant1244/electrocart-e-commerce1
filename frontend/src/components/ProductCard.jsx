@@ -67,15 +67,15 @@ export default function ProductCard({ p }) {
   
   if (rawFirst && !isGenericImage) img = getImageUrl(rawFirst);
   else if (UPLOAD_FALLBACK[slugKey]) img = getImageUrl(UPLOAD_FALLBACK[slugKey]);
-  else if (p.name && /watch/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['alpha-watch-ultra']);
+  else if (p.name && /camera|dvr|security|doorbell|cam\b/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['camera']);
   else if (p.name && /iphone/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['iphone-15-pro-max']);
   else if (p.name && /ipad/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['ipad']);
   else if (p.name && /macbook|laptop/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['macbook-m2-dark-gray']);
-  else if (p.name && /headphone|earbud|airpod/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['wireless-headphones']);
-  else if (p.name && /camera/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['camera']);
+  else if (p.name && /headphone|earbud|airpod|headset/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['wireless-headphones']);
+  else if (p.name && /watch/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['alpha-watch-ultra']);
   else if (p.name && /charger|cable/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['matrixsafe-charger']);
   else if (p.name && /speaker|audio/i.test(p.name)) img = getImageUrl(UPLOAD_FALLBACK['mini-speaker']);
-  else img = getImageUrl(UPLOAD_FALLBACK['alpha-watch-ultra']);
+  else img = getImageUrl(null);
   const rating = p.rating || 5;
   
   const addToCart = (e) => {

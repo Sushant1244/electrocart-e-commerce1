@@ -11,20 +11,20 @@ const categories = [
   { name: 'Accessories', slug: 'accessories', image: '/uploads/accessories.jpg' }
 ];
 const products = [
-  ['Sentinel 4K Outdoor Camera', 'sentinel-4k-outdoor-camera', 'Weather-resistant 4K security camera with night vision.', 249, 'security-cameras', 'Sentinel'],
-  ['NightWatch PTZ Camera', 'nightwatch-ptz-camera', 'Pan, tilt and zoom camera with smart motion alerts.', 179, 'security-cameras', 'NightWatch'],
-  ['Guardian Doorbell Camera', 'guardian-doorbell-camera', 'Two-way audio doorbell camera with cloud-ready alerts.', 129, 'security-cameras', 'Guardian'],
-  ['SecureHub 8 Channel DVR', 'securehub-8-channel-dvr', 'Expandable DVR for multi-camera security systems.', 299, 'security-cameras', 'SecureHub'],
-  ['Indoor Mini Cam', 'indoor-mini-cam', 'Compact 1080p indoor camera with privacy mode.', 59, 'security-cameras', 'SONU'],
-  ['Titan RGB Gaming Keyboard', 'titan-rgb-gaming-keyboard', 'Low-latency mechanical keyboard with programmable RGB.', 89, 'gaming', 'Titan'],
-  ['Apex Wireless Gaming Mouse', 'apex-wireless-gaming-mouse', 'Lightweight wireless mouse with adjustable DPI.', 69, 'gaming', 'Apex'],
-  ['Vector Pro Gaming Headset', 'vector-pro-gaming-headset', 'Surround-sound headset with a detachable microphone.', 99, 'gaming', 'Vector'],
-  ['Forge USB Gaming Controller', 'forge-usb-gaming-controller', 'Responsive wired controller for PC gaming.', 45, 'gaming', 'Forge'],
-  ['Pulse 27 Gaming Monitor', 'pulse-27-gaming-monitor', '144Hz QHD display with adaptive sync.', 329, 'gaming', 'Pulse']
-].map(([name, slug, description, price, category, brand]) => ({ name, slug, description, price, category, brand, stock: 25, images: [], specs: { warranty: '1 year' }, isActive: true }));
+  ['Sentinel 4K Outdoor Camera', 'sentinel-4k-outdoor-camera', 'Weather-resistant 4K security camera with night vision.', 249, 'security-cameras', 'Sentinel', 'Camera.png'],
+  ['NightWatch PTZ Camera', 'nightwatch-ptz-camera', 'Pan, tilt and zoom camera with smart motion alerts.', 179, 'security-cameras', 'NightWatch', 'Hikvision Camera.png'],
+  ['Guardian Doorbell Camera', 'guardian-doorbell-camera', 'Two-way audio doorbell camera with cloud-ready alerts.', 129, 'security-cameras', 'Guardian', 'Security Smart Camera copy.png'],
+  ['SecureHub 8 Channel DVR', 'securehub-8-channel-dvr', 'Expandable DVR for multi-camera security systems.', 299, 'security-cameras', 'SecureHub', 'Smart Box.png'],
+  ['Indoor Mini Cam', 'indoor-mini-cam', 'Compact 1080p indoor camera with privacy mode.', 59, 'security-cameras', 'SONU', 'Homepad mini.png'],
+  ['Titan RGB Gaming Keyboard', 'titan-rgb-gaming-keyboard', 'Low-latency mechanical keyboard with programmable RGB.', 89, 'gaming', 'Titan', 'ENTERTAINMENT & GAMES.png'],
+  ['Apex Wireless Gaming Mouse', 'apex-wireless-gaming-mouse', 'Lightweight wireless mouse with adjustable DPI.', 69, 'gaming', 'Apex', 'ENTERTAINMENT & GAMES.png'],
+  ['Vector Pro Gaming Headset', 'vector-pro-gaming-headset', 'Surround-sound headset with a detachable microphone.', 99, 'gaming', 'Vector', 'Headphone.png'],
+  ['Forge USB Gaming Controller', 'forge-usb-gaming-controller', 'Responsive wired controller for PC gaming.', 45, 'gaming', 'Forge', 'Smart Box.png'],
+  ['Pulse 27 Gaming Monitor', 'pulse-27-gaming-monitor', '144Hz QHD display with adaptive sync.', 329, 'gaming', 'Pulse', 'MacBook Air M4.png']
+].map(([name, slug, description, price, category, brand, image]) => ({ name, slug, description, price, category, brand, stock: 25, images: [`/uploads/${image}`], specs: { warranty: '1 year' }, isActive: true }));
 
 async function seed() {
-  if (!process.env.MONGO_URI) throw new Error('MONGO_URI is required');
+  if (!process.env.MONGODB_URI && !process.env.MONGO_URI) throw new Error('MONGODB_URI (or MONGO_URI) is required');
   if (!process.env.ADMIN_PASSWORD) throw new Error('ADMIN_PASSWORD is required for seeding');
   await connectDB();
   await Category.bulkWrite(categories.map(category => ({ updateOne: { filter: { slug: category.slug }, update: { $set: category }, upsert: true } })));

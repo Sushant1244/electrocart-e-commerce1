@@ -1,0 +1,201 @@
+/* =====================================================================
+   HeroShowcase — animated 3D product stage for the discount banner.
+   Only transform / opacity are animated so everything stays on the
+   compositor (60fps). Layout, colors and fonts of the banner itself
+   are untouched (see styles.css .discount-*).
+   ===================================================================== */
+
+.hero-showcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  inline-size: 100%;
+}
+
+/* The 3D viewport. perspective gives the rotateY its depth. */
+.hero-stage {
+  position: relative;
+  inline-size: min(420px, 80vw);
+  block-size: 420px;
+  perspective: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Gentle vertical bob (10px, 4s). */
+.hero-float {
+  inline-size: 100%;
+  block-size: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  animation: hero-float 4s ease-in-out infinite;
+}
+
+/* Continuous slow turntable spin (360deg / 8s, linear). */
+.hero-spin {
+  inline-size: 100%;
+  block-size: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  animation: hero-spin 8s linear infinite;
+}
+
+/* The product layer. Receives the flip in/out transition on change. */
+.hero-product {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.hero-product.phase-exit { animation: hero-flip-exit 0.6s ease-in forwards; }
+.hero-product.phase-enter { animation: hero-flip-enter 0.6s ease-out forwards; }
+
+.hero-img {
+  display: block;
+  max-inline-size: 100%;
+  max-block-size: 300px;
+  object-fit: contain;
+  /* keep the flat artwork crisp while it turns */
+  backface-visibility: visible;
+}
+
+/* Light sweep that runs once as a product flips in. */
+.hero-shine {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.65) 50%, transparent 60%);
+  transform: translateX(-120%);
+  opacity: 0;
+}
+.hero-product.phase-enter .hero-shine { animation: hero-shine 0.9s ease-out 0.1s 1; }
+
+/* Mirror floor: flipped copy, masked + blurred so it reads as a reflection.
+   The flip lives on the inner img so the mask direction stays visual. */
+.hero-reflection {
+  inline-size: 100%;
+  block-size: 120px;
+  margin-block-start: 4px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.6;
+  filter: blur(2px);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent 60%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent 60%);
+}
+.hero-reflection img {
+  inline-size: 100%;
+  block-size: 300px;
+  object-fit: contain;
+  transform: scaleY(-1);
+}
+
+/* Soft contact shadow. Same 4s curve as the float so it breathes in sync
+   (smaller + fainter when the product rises). */
+.hero-shadow {
+  position: absolute;
+  inset-block-end: 6px;
+  left: 50%;
+  inline-size: 60%;
+  block-size: 26px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(11, 23, 33, 0.28), transparent 70%);
+  filter: blur(4px);
+  animation: hero-shadow 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Name + price caption; re-keyed on change so it fades/slides in. */
+.hero-caption {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-weight: 700;
+  color: #0b1721;
+}
+.hero-caption .hero-price { color: #e23f1b; }
+.hero-caption-swap { animation: hero-text-swap 0.5s ease; }
+
+/* Dot indicators for manual switching. */
+.hero-dots { display: flex; gap: 0.5rem; }
+.hero-dot {
+  inline-size: 10px;
+  block-size: 10px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(11, 23, 33, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.hero-dot:hover { transform: scale(1.2); }
+.hero-dot.active { background: #e23f1b; transform: scale(1.25); }
+
+/* Headline swap animation (applied to the banner h2 via a key change). */
+.hero-headline-swap { animation: hero-text-swap 0.5s ease; }
+
+/* ===== keyframes ===== */
+@keyframes hero-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes hero-shadow {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.55; }
+  50% { transform: translateX(-50%) scale(0.85); opacity: 0.3; }
+}
+@keyframes hero-flip-exit {
+  from { transform: rotateY(0deg); opacity: 1; }
+  to { transform: rotateY(90deg); opacity: 0; }
+}
+@keyframes hero-flip-enter {
+  from { transform: rotateY(-90deg); opacity: 0; }
+  to { transform: rotateY(0deg); opacity: 1; }
+}
+@keyframes hero-shine {
+  0% { transform: translateX(-120%); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+@keyframes hero-text-swap {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hero-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* ===== reduced motion: no spin/float/shine, simple fades ===== */
+@media (prefers-reduced-motion: reduce) {
+  .hero-spin,
+  .hero-float,
+  .hero-shadow { animation: none !important; }
+  .hero-shine { display: none; }
+  .hero-product.phase-enter { animation: hero-fade-in 0.3s ease forwards; }
+  .hero-product.phase-exit { animation: hero-fade-out 0.3s ease forwards; }
+  .hero-caption-swap,
+  .hero-headline-swap { animation: hero-fade-in 0.3s ease; }
+}
+
+/* ===== mobile: product stacks above the text and scales down ===== */
+@media (max-width: 768px) {
+  /* .discount-content is a column here; lift the image column first. */
+  .discount-images { order: -1; }
+  .hero-stage { inline-size: min(280px, 70vw); block-size: 300px; }
+  .hero-img { max-block-size: 200px; }
+  .hero-reflection { block-size: 80px; }
+  .hero-reflection img { block-size: 200px; }
+}
